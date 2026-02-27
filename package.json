@@ -1,0 +1,11 @@
+{
+  "name": "df-consulting-launchpad",
+  "version": "1.0.0",
+  "description": "Cabinet de Croissance pour Artisans RGE",
+  "main": "index.html",
+  "scripts": {
+    "start": "echo 'Deploying to Vercel...'"
+  },
+  "author": "",
+  "license": "ISC"
+}
