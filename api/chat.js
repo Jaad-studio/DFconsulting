@@ -21,38 +21,40 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-        console.error("ERREUR VERCEL: GEMINI_API_KEY est introuvable. Avez-vous refait un déploiement après l'avoir ajoutée ?");
-        return res.status(500).json({ error: 'Clé API manquante. Vérifiez les variables d\'environnement sur Vercel.' });
+        return res.status(500).json({ error: 'Clé API manquante sur Vercel.' });
     }
 
-    // On utilise le modèle universel "gemini-pro" qui est disponible sur 100% des clés API
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
+    // On utilise le modèle standard et ultra-rapide : gemini-1.5-flash
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
-        }) // Note: Le modèle gemini-pro classique ne gère pas toujours le paramètre systemInstruction, on l'intègre donc pour éviter toute autre erreur 400.
+          contents: [{ parts: [{ text: prompt }] }],
+          systemInstruction: { parts: [{ text: "Tu es un expert en data locale et stratégie d'acquisition pour le secteur du bâtiment." }] }
+        })
       });
   
-      // On parse la réponse de Google
       const data = await response.json();
   
-      // Si le statut HTTP n'est pas bon (ex: 400, 403, 500)
+      // Gestion des erreurs Google API
       if (!response.ok) {
-        // On logue l'erreur EXACTE de Google dans les logs Vercel pour comprendre le problème
-        console.error("Erreur renvoyée par Google Gemini :", JSON.stringify(data.error, null, 2));
-        throw new Error(data.error?.message || 'Erreur inconnue provenant de Google API');
+        console.error("Erreur Google Gemini:", JSON.stringify(data.error, null, 2));
+        
+        // Si Google dit que le modèle n'est pas trouvé pour la clé
+        if (data.error?.message?.includes('not found for API key')) {
+             throw new Error("Clé API Google invalide ou générée au mauvais endroit. Veuillez générer une clé sur Google AI Studio.");
+        }
+        throw new Error(data.error?.message || 'Erreur inconnue API Google');
       }
   
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Impossible de générer l'analyse.";
       
-      // Retourner le résultat au front-end
       res.status(200).json({ result: text });
     } catch (error) {
-      console.error("Erreur backend détaillée :", error);
-      res.status(500).json({ error: error.message || 'Erreur interne du serveur lors de l\'analyse.' });
+      console.error("Erreur backend :", error);
+      res.status(500).json({ error: error.message || 'Erreur interne du serveur.' });
     }
 }
