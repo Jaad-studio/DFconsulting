@@ -4,6 +4,9 @@
   "description": "Cabinet de Croissance pour Artisans RGE",
   "main": "index.html",
   "type": "module",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0"
+  },
   "scripts": {
     "start": "echo 'Deploying to Vercel...'"
   },
