@@ -21,10 +21,12 @@ export default async function handler(req, res) {
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-        return res.status(500).json({ error: 'Clé API serveur manquante.' });
+        console.error("ERREUR VERCEL: GEMINI_API_KEY est introuvable. Avez-vous refait un déploiement après l'avoir ajoutée ?");
+        return res.status(500).json({ error: 'Clé API manquante. Vérifiez les variables d\'environnement sur Vercel.' });
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    // On utilise le modèle public et stable : gemini-2.0-flash (ou gemini-1.5-flash)
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
   
     try {
       const response = await fetch(url, {
@@ -36,17 +38,22 @@ export default async function handler(req, res) {
         })
       });
   
+      // On parse la réponse de Google
+      const data = await response.json();
+  
+      // Si le statut HTTP n'est pas bon (ex: 400, 403, 500)
       if (!response.ok) {
-        throw new Error('Erreur provenant de Google Gemini API');
+        // On logue l'erreur EXACTE de Google dans les logs Vercel pour comprendre le problème
+        console.error("Erreur renvoyée par Google Gemini :", JSON.stringify(data.error, null, 2));
+        throw new Error(data.error?.message || 'Erreur inconnue provenant de Google API');
       }
   
-      const data = await response.json();
       const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Impossible de générer l'analyse.";
       
-      // Retourner le résultat au front-end (index.html)
+      // Retourner le résultat au front-end
       res.status(200).json({ result: text });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ error: 'Erreur interne du serveur lors de l\'analyse.' });
+      console.error("Erreur backend détaillée :", error);
+      res.status(500).json({ error: error.message || 'Erreur interne du serveur lors de l\'analyse.' });
     }
-  }
+}
