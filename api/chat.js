@@ -1,3 +1,5 @@
+import { GoogleGenerativeAI } from '@google/generative-ai';
+
 export default async function handler(req, res) {
     // N'autoriser que les requêtes POST
     if (req.method !== 'POST') {
@@ -20,49 +22,38 @@ export default async function handler(req, res) {
     3. 🚀 Le meilleur angle marketing à utiliser pour ses publicités locales.
     Reste très professionnel, direct, et donne envie à l'artisan de dominer son marché avec de bonnes publicités. Maximum 150 mots.`;
   
-    // 1. Récupération de la clé API
+    // 1. Récupération et nettoyage de la clé API
     const rawApiKey = process.env.GEMINI_API_KEY || "";
-    
-    // 2. NETTOYAGE CRUCIAL : Supprime les espaces invisibles ajoutés par erreur lors du copier-coller
     const apiKey = rawApiKey.trim();
     
     if (!apiKey) {
         return res.status(500).json({ error: "Clé API manquante sur Vercel. Ajoutez GEMINI_API_KEY dans vos réglages." });
     }
 
-    // Modèle officiel et ultra-rapide
-    const model = 'gemini-1.5-flash';
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    
     try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
-        });
+        // 2. Utilisation du SDK officiel de Google (gère les versions d'URL automatiquement)
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-        const data = await response.json();
+        // 3. Appel à l'IA
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text();
 
-        if (response.ok && data.candidates && data.candidates.length > 0) {
-            // Succès total
-            return res.status(200).json({ result: data.candidates[0].content.parts[0].text });
-        } else {
-            // Renvoi de l'erreur EXACTE de Google directement sur l'écran du site
-            const errorMsg = data.error?.message || JSON.stringify(data);
-            console.error("Erreur API Google:", errorMsg);
-            
-            if (errorMsg.includes("not found") || errorMsg.includes("API key")) {
-                 return res.status(500).json({ 
-                    error: `La clé Google a été rejetée. Erreur de Google : "${errorMsg}". Assurez-vous que la clé vient bien de Google AI Studio.` 
-                });
-            }
-            
-            return res.status(500).json({ error: `Erreur Google : ${errorMsg}` });
-        }
+        return res.status(200).json({ result: text });
+        
     } catch (err) {
-        console.error("Exception Fetch:", err.message);
-        return res.status(500).json({ error: `Erreur interne du serveur : ${err.message}` });
+        console.error("Erreur SDK Google:", err);
+        
+        const errorMsg = err.message || "";
+        
+        // Si l'erreur persiste avec le SDK, c'est que la clé n'a vraiment pas les droits
+        if (errorMsg.includes("not found") || errorMsg.includes("API key")) {
+             return res.status(500).json({ 
+                error: "Votre clé API Google actuelle n'a pas les permissions nécessaires. Veuillez en générer une NOUVELLE sur https://aistudio.google.com/app/apikey" 
+            });
+        }
+        
+        return res.status(500).json({ error: `Erreur interne : ${errorMsg}` });
     }
 }
