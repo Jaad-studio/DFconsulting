@@ -25,8 +25,8 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Clé API manquante. Vérifiez les variables d\'environnement sur Vercel.' });
     }
 
-    // On utilise le modèle public et stable : gemini-2.0-flash (ou gemini-1.5-flash)
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    // On utilise le modèle public et 100% stable : gemini-1.5-flash
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
   
     try {
       const response = await fetch(url, {
