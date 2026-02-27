@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Cabinet de Croissance pour Artisans RGE",
   "main": "index.html",
+  "type": "module",
   "scripts": {
     "start": "echo 'Deploying to Vercel...'"
   },
