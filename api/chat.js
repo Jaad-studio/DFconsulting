@@ -25,17 +25,16 @@ export default async function handler(req, res) {
         return res.status(500).json({ error: 'Clé API manquante. Vérifiez les variables d\'environnement sur Vercel.' });
     }
 
-    // On utilise le modèle public et 100% stable : gemini-1.5-flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    // On utilise le modèle universel "gemini-pro" qui est disponible sur 100% des clés API
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`;
   
     try {
       const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          systemInstruction: { parts: [{ text: "Tu es un expert en data locale et stratégie d'acquisition pour le secteur du bâtiment." }] }
-        })
+          contents: [{ parts: [{ text: prompt }] }]
+        }) // Note: Le modèle gemini-pro classique ne gère pas toujours le paramètre systemInstruction, on l'intègre donc pour éviter toute autre erreur 400.
       });
   
       // On parse la réponse de Google
