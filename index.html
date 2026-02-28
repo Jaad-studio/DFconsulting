@@ -221,16 +221,17 @@
         <!-- LE SPLINE EN FOND ABSOLU -->
         <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
             <!-- 
-                Astuce Ultime Mobile (V4 Finale) : 
-                - On crée un iframe géant au format bureau (w-[400vw] h-[300vh]) pour forcer Spline à dézoomer.
-                - On le réduit visuellement avec un scale-[0.35] (35%) pour qu'il rentre sur l'écran mobile.
-                - Il couvrira 140vw et 105vh de l'écran, donc 0 trou vert, et le texte sera parfait !
+                SOLUTION FINALE ET STABLE : 
+                - On donne une largeur fixe de 1000px sur mobile (w-[1000px]). 
+                  Cela force Spline à afficher la vue "Bureau" (dézoomée) sur mobile.
+                - On la centre avec left-1/2 et -translate-x-1/2.
+                - Il n'y a plus de "scale" ou de "vw" immenses, donc aucun crash mémoire sur iPhone !
             -->
             <iframe 
                 src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
                 frameBorder="0" 
                 title="Animation 3D DF Consulting"
-                class="w-[400vw] h-[300vh] md:w-full md:h-full max-w-none pointer-events-none animate-spline-mobile transform scale-[0.35] md:scale-100 origin-center"
+                class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] md:w-full h-full max-w-none pointer-events-none animate-spline-mobile"
             ></iframe>
             
             <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none"></div>
