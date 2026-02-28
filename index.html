@@ -219,18 +219,18 @@
     <section class="relative w-full h-screen flex flex-col justify-end items-center pb-12 z-10 overflow-hidden">
         
         <!-- LE SPLINE EN FOND ABSOLU -->
-        <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+        <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
             <!-- 
-                Astuce Ultime Mobile (V3) : 
-                - On force une largeur immense (450vw) pour obliger Spline à "dézoomer" et afficher la vue bureau.
-                - On décale vers la gauche (-130vw) pour que le point focal (le texte) tombe pile au centre du téléphone.
-                - Résultat : Le texte est entier, lisible, centré et plus du tout collé aux bords !
+                Astuce Ultime Mobile (V4 Finale) : 
+                - On crée un iframe géant au format bureau (w-[400vw] h-[300vh]) pour forcer Spline à dézoomer.
+                - On le réduit visuellement avec un scale-[0.35] (35%) pour qu'il rentre sur l'écran mobile.
+                - Il couvrira 140vw et 105vh de l'écran, donc 0 trou vert, et le texte sera parfait !
             -->
             <iframe 
                 src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
                 frameBorder="0" 
                 title="Animation 3D DF Consulting"
-                class="absolute top-0 h-full max-w-none pointer-events-none animate-spline-mobile w-[450vw] -left-[130vw] md:w-full md:left-0"
+                class="w-[400vw] h-[300vh] md:w-full md:h-full max-w-none pointer-events-none animate-spline-mobile transform scale-[0.35] md:scale-100 origin-center"
             ></iframe>
             
             <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none"></div>
