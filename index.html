@@ -111,16 +111,6 @@
         .animate-fade-in-up {
             animation: fade-in-up 0.5s ease-out forwards;
         }
-
-        /* Animation Spline : Fade pur et fluide */
-        @keyframes splineFade {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-        .animate-spline-mobile {
-            opacity: 0;
-            animation: splineFade 1.5s ease-in-out 0.2s forwards;
-        }
         
         .no-scrollbar::-webkit-scrollbar {
             display: none;
@@ -219,41 +209,43 @@
         </div>
     </div>
 
-    <!-- HERO SECTION (Immersion Totale 100vh) -->
+    <!-- HERO SECTION (Immersion UX Mobile Premium) -->
     <section class="relative w-full h-screen flex flex-col justify-end items-center pb-12 z-10 overflow-hidden">
         
-        <!-- LE SPLINE EN FOND ABSOLU -->
-        <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
+        <!-- FOND SPLINE & BLEND (Astuce Ultime) -->
+        <div class="absolute inset-0 z-0 pointer-events-none flex flex-col bg-[#021c13]">
             
-            <!-- NOUVEAU : Indicateur de chargement Premium pour faire patienter l'utilisateur -->
-            <div id="spline-loader" class="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 z-0">
-                <i data-lucide="loader-2" class="w-10 h-10 text-lime-500/50 mb-4 animate-spin"></i>
-                <p class="text-lime-500/50 font-medium tracking-[0.2em] uppercase text-xs text-center px-4 animate-pulse">
-                    Initialisation de la 3D...
-                </p>
-            </div>
+            <!-- Zone Haute (La scène 3D prend 55% de l'écran sur mobile pour forcer le dézoom) -->
+            <div class="relative w-full h-[55vh] md:h-full overflow-hidden flex items-center justify-center">
+                
+                <!-- Loader sécurisé (Toujours visible au fond, recouvert par l'iframe quand il est prêt) -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-0">
+                    <i data-lucide="loader-2" class="w-10 h-10 text-lime-500/50 mb-4 animate-spin"></i>
+                    <p class="text-lime-500/50 font-medium tracking-[0.2em] uppercase text-xs text-center px-4 animate-pulse">
+                        Initialisation de la 3D...
+                    </p>
+                </div>
 
-            <!-- Wrapper de zoom sécurisé (Caché au départ avec opacity-0) -->
-            <div class="relative w-full h-full flex items-center justify-center scale-[1.6] md:scale-100 origin-center z-10 transition-opacity duration-1000 opacity-0" id="spline-wrapper">
-                <!-- 
-                    SOLUTION ANTI-CRASH ET ANTI-ZOOM : 
-                    - Ajout de fetchpriority="high"
-                    - Ajout d'un onload qui fait le fondu parfait une fois que Spline est prêt !
-                -->
+                <!-- L'Iframe : Plus besoin de javascript ou d'opacité. Il recouvre le loader naturellement. -->
+                <!-- Le w-[140vw] permet d'assurer que même sur un grand téléphone, le texte ne touche pas les bords -->
                 <iframe 
                     fetchpriority="high"
                     src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
                     frameBorder="0" 
                     title="Animation 3D DF Consulting"
-                    class="w-[1350px] h-[600px] md:w-full md:h-full max-w-none pointer-events-none flex-shrink-0"
-                    onload="document.getElementById('spline-wrapper').classList.remove('opacity-0'); document.getElementById('spline-loader').classList.add('opacity-0'); setTimeout(() => { const l = document.getElementById('spline-loader'); if(l) l.remove(); }, 1000);"
+                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[140vw] md:w-full h-full max-w-none pointer-events-none z-10"
                 ></iframe>
+                
+                <!-- Le Fondu magique : lie la forêt 3D avec la zone des boutons en dessous -->
+                <div class="absolute bottom-0 left-0 w-full h-32 md:h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/90 to-transparent z-20"></div>
             </div>
-            
-            <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none z-20"></div>
+
+            <!-- Zone Basse : Fond uni vert sombre pour accueillir proprement les boutons (sur mobile uniquement) -->
+            <div class="w-full h-[45vh] md:hidden bg-[#021c13] z-10"></div>
         </div>
 
-        <div class="relative z-20 w-full max-w-5xl mx-auto px-4 flex flex-col items-center pointer-events-none">
+        <!-- CONTENU EN SURIMPRESSION (Boutons et Stats bien calés en bas) -->
+        <div class="relative z-30 w-full max-w-5xl mx-auto px-4 flex flex-col items-center pointer-events-none">
             <div class="flex flex-wrap justify-center gap-4 mb-6 pointer-events-auto">
                 <a href="#contact" class="nav-link px-8 py-4 font-bold text-black rounded-full bg-lime-400 hover:bg-lime-300 transition-colors shadow-[0_0_30px_rgba(163,230,53,0.3)] flex items-center justify-center gap-2 group">
                     Réserver mon audit gratuit
