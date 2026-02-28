@@ -1,825 +1,753 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Zap, 
-  Target, 
-  TrendingUp, 
-  Users, 
-  ShieldCheck, 
-  ChevronRight, 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Menu, 
-  X, 
-  Star, 
-  Cpu,
-  BarChart,
-  MessageSquare,
-  Globe,
-  ArrowRight,
-  Leaf,
-  TreePine,
-  Sun,
-  CheckCircle,
-  Sparkles,
-  Wand2,
-  Loader2
-} from 'lucide-react';
-
-// Injection de styles pour les animations personnalisées (Marquee et fond)
-const CustomStyles = () => (
-  <style dangerouslySetInnerHTML={{__html: `
-    @keyframes scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    .animate-marquee {
-      animation: scroll 40s linear infinite;
-    }
-    .animate-marquee:hover {
-      animation-play-state: paused;
-    }
-    .glass-panel {
-      background: rgba(255, 255, 255, 0.03);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DF Consulting - Cabinet de Croissance RGE</title>
     
-    /* FOND ORGANIQUE : NATURE, FEUILLES & LUMIÈRE DOUCE */
+    <!-- Optimisation du chargement 3D -->
+    <link rel="preconnect" href="https://my.spline.design">
+    <link rel="preconnect" href="https://prod.spline.design">
     
-    /* 1. Texture Grain / Noise */
-    .bg-noise {
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
-      mix-blend-mode: overlay;
-    }
-
-    /* 2. Particules / Pollen flottant */
-    @keyframes float-up {
-      0% { transform: translateY(110vh) translateX(0px) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.6; }
-      90% { opacity: 0.6; }
-      100% { transform: translateY(-10vh) translateX(50px) rotate(360deg); opacity: 0; }
-    }
-    .particle {
-      position: absolute;
-      background: radial-gradient(circle, rgba(167, 243, 208, 0.8) 0%, rgba(16, 185, 129, 0) 70%);
-      border-radius: 50%;
-      animation: float-up linear infinite;
-    }
-
-    /* 3. Rayons de soleil filtrant à travers les arbres (Canopy effect) */
-    @keyframes sun-ray {
-      0% { transform: rotate(15deg) scale(1); opacity: 0.05; }
-      50% { transform: rotate(18deg) scale(1.2); opacity: 0.12; }
-      100% { transform: rotate(15deg) scale(1); opacity: 0.05; }
-    }
-    .sun-ray {
-      position: absolute;
-      top: -20%;
-      width: 150px;
-      height: 150vh;
-      background: linear-gradient(to bottom, rgba(253, 230, 138, 0.4), transparent);
-      transform-origin: top center;
-      animation: sun-ray 10s ease-in-out infinite alternate;
-      filter: blur(40px);
-    }
-
-    /* 4. Aurores / Brume végétale */
-    @keyframes float-aurora {
-      0% { transform: rotate(0deg) translate(0px, 0px) scale(1); }
-      33% { transform: rotate(5deg) translate(80px, -50px) scale(1.1); }
-      66% { transform: rotate(-3deg) translate(-60px, 80px) scale(0.95); }
-      100% { transform: rotate(0deg) translate(0px, 0px) scale(1); }
-    }
-    .animate-forest-1 { animation: float-aurora 25s infinite ease-in-out alternate; }
-    .animate-forest-2 { animation: float-aurora 30s infinite ease-in-out alternate-reverse; animation-delay: -5s; }
-
-    /* 5. Feuilles tombantes (Falling leaves) */
-    @keyframes leaf-fall {
-      0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
-      10% { opacity: 0.8; }
-      90% { opacity: 0.8; }
-      100% { transform: translate3d(var(--sway-end), 110vh, 0) rotate(var(--rotate-end)); opacity: 0; }
-    }
-    .falling-leaf {
-      position: absolute;
-      top: -10%;
-      animation: leaf-fall linear infinite;
-      color: rgba(52, 211, 153, 0.4); /* Couleur émeraude translucide */
-      filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.2));
-    }
-
-    /* 6. Animation des feuilles rapides pour le chargement */
-    @keyframes loader-leaf-fall {
-      0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
-      10% { opacity: 1; }
-      90% { opacity: 1; }
-      100% { transform: translate3d(var(--sway-end), 110vh, 0) rotate(var(--rotate-end)); opacity: 0; }
-    }
-    .loader-leaf {
-      position: absolute;
-      top: -10%;
-      animation: loader-leaf-fall linear infinite;
-      color: rgba(163, 230, 53, 0.8);
-      filter: drop-shadow(0 0 15px rgba(163, 230, 53, 0.5));
-    }
-
-    /* 7. Animation d'apparition formulaire */
-    @keyframes fade-in-up {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .animate-fade-in-up {
-      animation: fade-in-up 0.5s ease-out forwards;
-    }
-
-    /* Ajout du défilement doux global */
-    html {
-      scroll-behavior: smooth;
-    }
-  `}} />
-);
-
-export default function App() {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showLoader, setShowLoader] = useState(true);
-  const [loaderExiting, setLoaderExiting] = useState(false);
-
-  // Nouveaux states pour le formulaire multi-étapes
-  const [formStep, setFormStep] = useState(1);
-  const [formData, setFormData] = useState({ specialty: '', challenge: '', name: '', phone: '' });
-
-  // Nouveaux states pour l'intégration Gemini API (Analyseur Local)
-  const [aiSpecialty, setAiSpecialty] = useState('');
-  const [aiCity, setAiCity] = useState('');
-  const [aiResult, setAiResult] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [generationError, setGenerationError] = useState('');
-  
-  // State pour surveiller le chargement du Spline 3D
-  const [splineLoaded, setSplineLoaded] = useState(false);
-
-  const analyzeLocalMarket = async () => {
-    if (!aiSpecialty || !aiCity) return;
-    setIsGenerating(true);
-    setGenerationError('');
-    setAiResult('');
-
-    const prompt = `En tant qu'analyste de marché spécialisé dans la rénovation énergétique (RGE) en France, réalise un mini-audit très concis pour un artisan qui installe des ${aiSpecialty} dans la ville de ${aiCity} (et sa région). 
-    Structure ta réponse avec ces 3 points précis (et des emojis) :
-    1. 🌡️ Contexte local (climat typique, type de logements anciens, passoires thermiques).
-    2. 🎯 Profil du client idéal dans ce secteur géographique.
-    3. 🚀 Le meilleur angle marketing à utiliser pour ses publicités locales.
-    Reste très professionnel, direct, et donne envie à l'artisan de dominer son marché avec de bonnes publicités. Maximum 150 mots.`;
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    const apiKey = "";
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-    const payload = {
-      contents: [{ parts: [{ text: prompt }] }],
-      systemInstruction: { parts: [{ text: "Tu es un expert en data locale et stratégie d'acquisition pour le secteur du bâtiment." }] }
-    };
-
-    const fetchWithRetry = async (retries = 5, delay = 1000) => {
-      try {
-        const res = await fetch(url, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload)
-        });
-        if (!res.ok) throw new Error("API Error");
-        const data = await res.json();
-        return data.candidates?.[0]?.content?.parts?.[0]?.text || "Erreur lors de l'analyse.";
-      } catch (error) {
-        if (retries > 0) {
-          await new Promise(resolve => setTimeout(resolve, delay));
-          return fetchWithRetry(retries - 1, delay * 2);
-        } else {
-          throw error;
+    <style>
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
-      }
-    };
+        .animate-marquee {
+            animation: scroll 40s linear infinite;
+        }
+        .animate-marquee:hover {
+            animation-play-state: paused;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .bg-noise {
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+            mix-blend-mode: overlay;
+        }
 
-    try {
-      const text = await fetchWithRetry();
-      setAiResult(text);
-    } catch (err) {
-      setGenerationError("Analyse momentanément indisponible. Veuillez réessayer.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
+        @keyframes float-up {
+            0% { transform: translateY(110vh) translateX(0px) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) translateX(50px) rotate(360deg); opacity: 0; }
+        }
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(167, 243, 208, 0.8) 0%, rgba(16, 185, 129, 0) 70%);
+            border-radius: 50%;
+            animation: float-up linear infinite;
+        }
 
-  useEffect(() => {
-    // Le loader reste affiché beaucoup moins longtemps (1.2s au lieu de 2.5s)
-    const timer = setTimeout(() => {
-      setLoaderExiting(true);
-      // Disparition plus rapide (500ms)
-      setTimeout(() => setShowLoader(false), 500); 
-    }, 1200);
-    return () => clearTimeout(timer);
-  }, []);
+        @keyframes sun-ray {
+            0% { transform: rotate(15deg) scale(1); opacity: 0.05; }
+            50% { transform: rotate(18deg) scale(1.2); opacity: 0.12; }
+            100% { transform: rotate(15deg) scale(1); opacity: 0.05; }
+        }
+        .sun-ray {
+            position: absolute;
+            top: -20%;
+            width: 150px;
+            height: 150vh;
+            background: linear-gradient(to bottom, rgba(253, 230, 138, 0.4), transparent);
+            transform-origin: top center;
+            animation: sun-ray 10s ease-in-out infinite alternate;
+            filter: blur(40px);
+        }
 
-  // Fonction pour gérer le défilement fluide et le décalage de la barre de navigation
-  const handleScroll = (e, targetId) => {
-    e.preventDefault();
-    const element = document.getElementById(targetId);
-    if (element) {
-      // On calcule la position de l'élément en soustrayant 100px pour ne pas que le titre soit caché sous la pilule flottante
-      const y = element.getBoundingClientRect().top + window.scrollY - 100;
-      window.scrollTo({ top: y, behavior: 'smooth' });
-    }
-    // On ferme le menu mobile si un lien est cliqué
-    setIsMobileMenuOpen(false);
-  };
+        @keyframes float-aurora {
+            0% { transform: rotate(0deg) translate(0px, 0px) scale(1); }
+            33% { transform: rotate(5deg) translate(80px, -50px) scale(1.1); }
+            66% { transform: rotate(-3deg) translate(-60px, 80px) scale(0.95); }
+            100% { transform: rotate(0deg) translate(0px, 0px) scale(1); }
+        }
+        .animate-forest-1 { animation: float-aurora 25s infinite ease-in-out alternate; }
+        .animate-forest-2 { animation: float-aurora 30s infinite ease-in-out alternate-reverse; animation-delay: -5s; }
 
-  return (
-    <div className="min-h-screen bg-[#021c13] text-emerald-50 font-sans selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden relative">
-      <CustomStyles />
-      
-      {/* ÉCRAN DE CHARGEMENT (SPLASH SCREEN) */}
-      {showLoader && (
-        <div className={`fixed inset-0 z-[100] bg-[#021c13] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out ${loaderExiting ? 'opacity-0' : 'opacity-100'}`}>
-          
-          {/* Feuilles virevoltantes du loader */}
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            {[...Array(20)].map((_, i) => (
-              <Leaf 
-                key={`loader-leaf-${i}`} 
-                className="loader-leaf" 
-                style={{
-                  left: `${Math.random() * 100}%`,
-                  animationDuration: `${2 + Math.random() * 3}s`,
-                  animationDelay: `${-(Math.random() * 5)}s`,
-                  width: `${24 + Math.random() * 32}px`,
-                  height: `${24 + Math.random() * 32}px`,
-                  '--sway-end': `${(Math.random() - 0.5) * 300}px`,
-                  '--rotate-end': `${(Math.random() - 0.5) * 720}deg`,
-                }} 
-              />
-            ))}
-          </div>
+        @keyframes leaf-fall {
+            0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% { transform: translate3d(var(--sway-end), 110vh, 0) rotate(var(--rotate-end)); opacity: 0; }
+        }
+        .falling-leaf {
+            position: absolute;
+            top: -10%;
+            animation: leaf-fall linear infinite;
+            color: rgba(52, 211, 153, 0.4);
+            filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.2));
+        }
 
-          {/* Logo Central "DF" - Nouveau Design Premium */}
-          <div className="relative z-10 flex flex-col items-center">
-            <div className="relative flex items-center text-8xl md:text-[10rem] font-black tracking-tighter">
-              <span className="text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">D</span>
-              <span className="text-lime-400 drop-shadow-[0_0_30px_rgba(163,230,53,0.6)] -ml-1 md:-ml-2">F</span>
-              {/* Petite feuille subtile en accent */}
-              <Leaf className="absolute -top-2 -right-10 md:-top-4 md:-right-14 w-10 h-10 md:w-16 md:h-16 text-emerald-400 animate-pulse drop-shadow-[0_0_20px_rgba(52,211,153,0.8)] transform rotate-[25deg]" />
+        @keyframes loader-leaf-fall {
+            0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translate3d(var(--sway-end), 110vh, 0) rotate(var(--rotate-end)); opacity: 0; }
+        }
+        .loader-leaf {
+            position: absolute;
+            top: -10%;
+            animation: loader-leaf-fall linear infinite;
+            color: rgba(163, 230, 53, 0.8);
+            filter: drop-shadow(0 0 15px rgba(163, 230, 53, 0.5));
+        }
+
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+            animation: fade-in-up 0.5s ease-out forwards;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-[#021c13] text-emerald-50 font-sans selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden relative min-h-screen">
+
+    <!-- ÉCRAN DE CHARGEMENT (SPLASH SCREEN) -->
+    <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#021c13] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out">
+        <div id="loader-leaves" class="absolute inset-0 overflow-hidden pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col items-center">
+            <div class="relative flex items-center text-8xl md:text-[10rem] font-black tracking-tighter">
+                <span class="text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">D</span>
+                <span class="text-lime-400 drop-shadow-[0_0_30px_rgba(163,230,53,0.6)] -ml-1 md:-ml-2">F</span>
+                <i data-lucide="leaf" class="absolute -top-2 -right-10 md:-top-4 md:-right-14 w-10 h-10 md:w-16 md:h-16 text-emerald-400 animate-pulse drop-shadow-[0_0_20px_rgba(52,211,153,0.8)] transform rotate-[25deg]"></i>
             </div>
-            <p className="mt-2 text-emerald-200/60 font-medium tracking-[0.4em] uppercase text-sm md:text-lg animate-pulse pl-2">
-              Consulting
+            <p class="mt-2 text-emerald-200/60 font-medium tracking-[0.4em] uppercase text-sm md:text-lg animate-pulse pl-2">
+                Consulting
             </p>
-          </div>
         </div>
-      )}
-
-      {/* FOND ANIMÉ : FORÊT, RAYONS DE SOLEIL & POLLEN */}
-      <div className="fixed inset-0 z-0 bg-[#021c13] overflow-hidden pointer-events-none">
-        
-        {/* Brume végétale */}
-        <div className="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-emerald-600/20 blur-[150px] rounded-full mix-blend-screen animate-forest-1"></div>
-        <div className="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-green-500/15 blur-[150px] rounded-full mix-blend-screen animate-forest-2"></div>
-        <div className="absolute bottom-[-20%] left-[20%] w-[900px] h-[900px] bg-lime-900/30 blur-[150px] rounded-full mix-blend-screen animate-forest-1" style={{animationDelay: '-10s'}}></div>
-
-        {/* Rayons de soleil (God rays) */}
-        <div className="sun-ray left-[10%]"></div>
-        <div className="sun-ray left-[45%]" style={{ animationDelay: '-3s', width: '250px' }}></div>
-        <div className="sun-ray left-[80%]" style={{ animationDelay: '-7s' }}></div>
-
-        {/* Particules type pollen/lucioles */}
-        <div className="absolute inset-0">
-          <div className="particle w-2 h-2 left-[15%]" style={{animationDuration: '14s', animationDelay: '0s'}}></div>
-          <div className="particle w-3 h-3 left-[35%]" style={{animationDuration: '19s', animationDelay: '-5s'}}></div>
-          <div className="particle w-1.5 h-1.5 left-[55%]" style={{animationDuration: '11s', animationDelay: '-2s'}}></div>
-          <div className="particle w-2.5 h-2.5 left-[75%]" style={{animationDuration: '16s', animationDelay: '-8s'}}></div>
-          <div className="particle w-4 h-4 left-[90%]" style={{animationDuration: '24s', animationDelay: '-12s'}}></div>
-        </div>
-
-        {/* Feuilles tombantes animées */}
-        <div className="absolute inset-0">
-          {[...Array(12)].map((_, i) => (
-            <Leaf 
-              key={i} 
-              className="falling-leaf" 
-              style={{
-                left: `${Math.random() * 100}%`,
-                animationDuration: `${15 + Math.random() * 20}s`,
-                animationDelay: `${-(Math.random() * 25)}s`,
-                width: `${16 + Math.random() * 24}px`,
-                height: `${16 + Math.random() * 24}px`,
-                '--sway-end': `${(Math.random() - 0.5) * 300}px`,
-                '--rotate-end': `${(Math.random() - 0.5) * 1080}deg`,
-              }} 
-            />
-          ))}
-        </div>
-
-        {/* Overlay Texture Grain */}
-        <div className="absolute inset-0 bg-noise pointer-events-none opacity-60"></div>
-      </div>
-
-      {/* NAVBAR FLOTTANTE (Pilule ultra moderne) */}
-      <div className="fixed top-6 left-0 w-full z-50 flex justify-center px-4 pointer-events-none">
-        <nav className="pointer-events-auto glass-panel rounded-full px-4 py-3 flex items-center justify-between gap-8 shadow-2xl shadow-black/50 max-w-4xl w-full transition-all">
-          
-          {/* Logo */}
-          <div className="flex items-center gap-2 pl-2 cursor-pointer" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-            <Leaf className="text-lime-400 w-5 h-5" />
-            <span className="font-bold text-white tracking-tight hidden sm:block">
-              DF Consulting
-            </span>
-            <span className="font-bold text-white tracking-tight sm:hidden">
-              DF
-            </span>
-          </div>
-
-          {/* Desktop Links */}
-          <div className="hidden md:flex items-center gap-6">
-            <a href="#services" onClick={(e) => handleScroll(e, 'services')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Écosystème</a>
-            <a href="#methode" onClick={(e) => handleScroll(e, 'methode')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">La Méthode</a>
-            <a href="#avis" onClick={(e) => handleScroll(e, 'avis')} className="text-sm font-medium text-slate-400 hover:text-white transition-colors">Témoignages</a>
-          </div>
-
-          {/* CTA & Mobile Toggle */}
-          <div className="flex items-center gap-2">
-            <a href="#contact" onClick={(e) => handleScroll(e, 'contact')} className="hidden sm:flex items-center gap-2 px-5 py-2 font-medium text-sm text-black rounded-full bg-white hover:bg-emerald-50 transition-colors">
-              <Phone className="w-4 h-4" />
-              Audit Gratuit
-            </a>
-            <button className="md:hidden text-white p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </button>
-          </div>
-        </nav>
-      </div>
-
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center gap-8 md:hidden">
-          <a href="#services" onClick={(e) => handleScroll(e, 'services')} className="text-3xl font-light text-white">Écosystème</a>
-          <a href="#methode" onClick={(e) => handleScroll(e, 'methode')} className="text-3xl font-light text-white">La Méthode</a>
-          <a href="#avis" onClick={(e) => handleScroll(e, 'avis')} className="text-3xl font-light text-white">Témoignages</a>
-          <a href="#contact" onClick={(e) => handleScroll(e, 'contact')} className="mt-8 px-8 py-4 text-lg font-medium text-black rounded-full bg-white">
-            Réserver un Audit
-          </a>
-        </div>
-      )}
-
-      {/* HERO SECTION (Immersion Totale 100vh) */}
-      <section className="relative w-full h-screen flex flex-col justify-end items-center pb-12 z-10 overflow-hidden">
-        
-        {/* FOND SPLINE & BLEND (Astuce Ultime Mobile appliquée dans React) */}
-        <div className="absolute inset-0 z-0 pointer-events-none flex flex-col bg-[#021c13]">
-          
-          {/* Zone Haute (Prend 65% de l'écran sur mobile pour abaisser le texte sous la navbar) */}
-          <div className="relative w-full h-[65vh] md:h-full overflow-hidden flex items-center justify-center">
-
-            {/* Placeholder visuel de chargement en attendant Spline */}
-            <div className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 ${splineLoaded ? 'opacity-0' : 'opacity-100'} z-0`}>
-              <TreePine className="w-16 h-16 text-lime-500/40 mb-4 animate-pulse" />
-              <p className="text-lime-500/40 font-medium tracking-[0.2em] uppercase text-xs md:text-sm animate-pulse">
-                Chargement de l'environnement 3D...
-              </p>
-            </div>
-
-            {/* L'Iframe 3D avec les correctifs de cadrage Mobile :
-              - w-[350vw] force un immense dézoom pour faire rentrer tout le texte (C et G inclus).
-              - h-[80vh] descend le centre de la scène pour dégager le "DF".
-            */}
-            <iframe 
-              src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
-              frameBorder="0" 
-              title="Animation 3D DF Consulting"
-              className={`absolute top-0 left-1/2 -translate-x-1/2 w-[350vw] md:w-full h-[80vh] md:h-full max-w-none pointer-events-none z-10 transition-opacity duration-1000 ${splineLoaded ? 'opacity-100' : 'opacity-0'}`}
-              onLoad={() => setSplineLoaded(true)}
-            ></iframe>
-            
-            {/* Dégradé pour une transition douce vers la section suivante au scroll */}
-            <div className="absolute bottom-0 left-0 w-full h-32 md:h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/90 to-transparent z-20"></div>
-          </div>
-
-          {/* Zone Basse : Fond uni (mobile uniquement) pour accueillir les boutons proprement */}
-          <div className="w-full h-[35vh] md:hidden bg-[#021c13] z-10"></div>
-        </div>
-
-        {/* CONTENU EN SURIMPRESSION (Boutons et Stats en bas de l'écran) */}
-        <div className="relative z-30 w-full max-w-5xl mx-auto px-4 flex flex-col items-center pointer-events-none">
-          
-          <div className="flex flex-wrap justify-center gap-4 mb-6 pointer-events-auto">
-            <a href="#contact" onClick={(e) => handleScroll(e, 'contact')} className="px-8 py-4 font-bold text-black rounded-full bg-lime-400 hover:bg-lime-300 transition-colors shadow-[0_0_30px_rgba(163,230,53,0.3)] flex items-center justify-center gap-2 group">
-              Réserver mon audit gratuit
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </a>
-          </div>
-
-          <div className="flex flex-wrap justify-center gap-4 pointer-events-auto">
-            <div className="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-white font-medium text-sm">+150 Artisans accompagnés</span>
-            </div>
-            <div className="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
-               <span className="text-lime-400 font-bold">x3</span>
-               <span className="text-white font-medium text-sm">Demandes de devis</span>
-            </div>
-          </div>
-          
-        </div>
-      </section>
-
-      {/* SERVICES (Design Minimaliste Liste Large) */}
-      <section id="services" className="py-32 relative z-10 bg-[#021c13]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <h2 className="text-3xl md:text-5xl font-bold text-white mb-16 tracking-tight text-center">
-            Un écosystème d'acquisition <span className="italic text-emerald-200/50 font-light">naturellement puissant.</span>
-          </h2>
-
-          <div className="space-y-4">
-            {/* Item 1 */}
-            <div className="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
-              <div className="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-lime-500/50 transition-colors">
-                <Target className="w-8 h-8 text-lime-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-2">Acquisition Multicanal (Ads)</h3>
-                <p className="text-emerald-100/70 text-lg font-light leading-relaxed">
-                  Nous diffusons vos offres sur Meta (Facebook/Instagram) et Google. Nous captons les particuliers de votre région au moment exact où ils envisagent une rénovation énergétique.
-                </p>
-              </div>
-            </div>
-
-            {/* Item 2 */}
-            <div className="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
-              <div className="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-emerald-500/50 transition-colors">
-                <Leaf className="w-8 h-8 text-emerald-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-2">Valorisation par l'IA</h3>
-                <p className="text-emerald-100/70 text-lg font-light leading-relaxed">
-                  Plus besoin de payer des agences hors de prix pour des photos. Notre intelligence artificielle magnifie vos chantiers écologiques et rédige des textes persuasifs.
-                </p>
-              </div>
-            </div>
-
-            {/* Item 3 */}
-            <div className="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
-              <div className="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-green-500/50 transition-colors">
-                <Sun className="w-8 h-8 text-green-400" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-2">Exclusivité Totale</h3>
-                <p className="text-emerald-100/70 text-lg font-light leading-relaxed">
-                  Contrairement aux plateformes classiques, chaque lead généré par nos tunnels de conversion n'appartient qu'à vous. Finie la guerre des prix.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SECTION DÉMO IA (Intégration Gemini API - Analyseur Local) */}
-      <section id="demo-ia" className="py-24 relative z-10 bg-black/40 border-y border-lime-500/10">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgxNjMsIDIzMCwgNTMsIDAuMSkiLz48L3N2Zz4=')] opacity-50"></div>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-lime-500/30 bg-lime-500/10 text-lime-400 text-xs font-semibold uppercase tracking-widest mb-4 backdrop-blur-md">
-              <BarChart className="w-4 h-4" />
-              Outil d'Analyse Stratégique
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
-              Découvrez le potentiel de <span className="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-400">votre secteur</span>
-            </h2>
-            <p className="text-emerald-100/70 text-lg max-w-2xl mx-auto">
-              Nous interrogeons notre Intelligence Artificielle pour analyser la dynamique locale de votre marché. Saisissez votre ville et découvrez votre potentiel d'acquisition.
-            </p>
-          </div>
-
-          <div className="glass-panel rounded-3xl p-8 border border-lime-500/20 shadow-[0_0_50px_rgba(163,230,53,0.05)] max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-              <div>
-                <label className="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Spécialité visée</label>
-                <select 
-                  value={aiSpecialty}
-                  onChange={(e) => setAiSpecialty(e.target.value)}
-                  className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-lime-400 transition-all appearance-none cursor-pointer"
-                >
-                  <option value="" disabled>Sélectionnez une activité</option>
-                  <option value="Pompes à chaleur (PAC)">Pompes à chaleur (PAC)</option>
-                  <option value="Panneaux solaires">Panneaux solaires (Photovoltaïque)</option>
-                  <option value="Isolation thermique (ITE/ITI)">Isolation thermique (ITE/ITI)</option>
-                  <option value="Poêles à granulés">Poêles à granulés / Bois</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Zone d'intervention</label>
-                <div className="relative">
-                  <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-100/30" />
-                  <input 
-                    type="text" 
-                    value={aiCity}
-                    onChange={(e) => setAiCity(e.target.value)}
-                    placeholder="ex: Lyon, Bordeaux, Bretagne..." 
-                    className="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white focus:outline-none focus:border-lime-400 transition-all placeholder:text-emerald-100/20"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            <button 
-              onClick={analyzeLocalMarket}
-              disabled={isGenerating || !aiSpecialty || !aiCity}
-              className="w-full md:w-auto md:px-12 mx-auto py-4 font-bold text-black rounded-xl bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-300 hover:to-emerald-300 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(163,230,53,0.2)]"
-            >
-              {isGenerating ? (
-                <><Loader2 className="w-5 h-5 animate-spin" /> Analyse des données du secteur...</>
-              ) : (
-                <><Target className="w-5 h-5" /> Générer mon audit local gratuit</>
-              )}
-            </button>
-
-            {(aiResult || generationError) && (
-              <div className="mt-8 p-6 md:p-8 rounded-2xl bg-[#01140e] border border-lime-500/30 relative animate-fade-in-up">
-                <div className="absolute -top-3 left-6 bg-[#021c13] px-3 py-0.5 text-xs font-bold text-lime-400 tracking-wider uppercase rounded-full border border-lime-500/30 shadow-[0_0_10px_rgba(163,230,53,0.2)] flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
-                  Rapport IA Terminé
-                </div>
-                {generationError ? (
-                  <p className="text-red-400 mt-2">{generationError}</p>
-                ) : (
-                  <div className="text-emerald-50 text-base md:text-lg leading-relaxed whitespace-pre-wrap font-light mt-2">
-                    {aiResult}
-                  </div>
-                )}
-                
-                {!isGenerating && !generationError && (
-                  <div className="mt-6 pt-6 border-t border-white/10 text-center">
-                    <p className="text-sm text-emerald-100/50 mb-4">Ces données vous parlent ? Imaginez si nous ciblions exactement ces profils pour vous.</p>
-                    <a href="#contact" onClick={(e) => handleScroll(e, 'contact')} className="inline-flex text-lime-400 hover:text-lime-300 text-sm font-bold uppercase tracking-widest items-center gap-1 group">
-                      Discuter de ce marché avec M. Fabre <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </a>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* POURQUOI NOUS (Mise en page épurée asymétrique) */}
-      <section id="methode" className="py-24 relative z-10 border-t border-white/5 bg-white/[0.01]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            
-            {/* Texte de gauche */}
-            <div>
-              <div className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center mb-8">
-                <Users className="text-white w-5 h-5" />
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">
-                L'humain au cœur <br/> de la machine.
-              </h2>
-              <p className="text-xl text-slate-400 font-light mb-8 leading-relaxed">
-                DF Consulting, c'est la puissance des algorithmes couplée à un accompagnement VIP. Vous parlez directement avec M. Fabre, un expert qui connaît le label RGE, MaPrimeRénov' et la réalité des chantiers.
-              </p>
-              
-              <ul className="space-y-4 mb-10">
-                {['Un interlocuteur unique (M. Fabre)', 'Suivi ROI en temps réel', 'Disponibilité WhatsApp 7j/7'].map((item, i) => (
-                  <li key={i} className="flex items-center gap-3 text-white">
-                    <div className="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                      <Zap className="w-3 h-3 text-emerald-400" />
-                    </div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Visuel Droite (Type carte Premium) */}
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-blue-500/20 blur-[100px] rounded-full"></div>
-              <div className="glass-panel rounded-[2rem] p-10 relative z-10">
-                <div className="w-full aspect-[4/3] rounded-2xl bg-black border border-white/10 flex flex-col items-center justify-center relative overflow-hidden">
-                  {/* Pseudo Graphique de croissance */}
-                  <div className="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-emerald-500/20 to-transparent"></div>
-                  <TrendingUp className="w-16 h-16 text-emerald-400 mb-4 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]" />
-                  <p className="text-white font-bold text-2xl">+312%</p>
-                  <p className="text-slate-500 text-sm uppercase tracking-widest">Croissance moyenne</p>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* AVIS CLIENTS (Effet Marquee Infini ultra-moderne) */}
-      <section id="avis" className="py-32 relative z-10 overflow-hidden">
-        <h2 className="text-center text-2xl font-medium text-slate-500 mb-12 uppercase tracking-widest">Ceux qui dominent leur secteur</h2>
-        
-        {/* Bandeau défilant */}
-        <div className="relative w-full flex overflow-hidden group">
-          
-          {/* Fades sur les bords pour adoucir l'entrée/sortie */}
-          <div className="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10"></div>
-          <div className="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10"></div>
-
-          <div className="flex animate-marquee gap-6 whitespace-nowrap pl-6">
-            {/* Duplication des cartes pour effet infini */}
-            {[...Array(2)].map((_, arrayIndex) => (
-              <React.Fragment key={arrayIndex}>
-                
-                <div className="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-white text-white" />)}
-                  </div>
-                  <p className="text-lg text-slate-300 font-light mb-8">"Agenda plein sur 3 semaines. Les leads générés ne sont pas partagés, la négo est beaucoup plus simple. Un vrai game changer."</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">T</div>
-                    <div>
-                      <p className="text-white font-bold text-sm">Thomas R.</p>
-                      <p className="text-emerald-400 text-xs">Pompe à Chaleur</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-white text-white" />)}
-                  </div>
-                  <p className="text-lg text-slate-300 font-light mb-8">"M. Fabre est ultra réactif. On a pu cibler spécifiquement l'isolation par l'extérieur. Le coût d'acquisition a baissé de 40%."</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">K</div>
-                    <div>
-                      <p className="text-white font-bold text-sm">Kevin M.</p>
-                      <p className="text-blue-400 text-xs">Isolation & Façade</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
-                  <div className="flex gap-1 mb-4">
-                    {[...Array(5)].map((_, i) => <Star key={i} className="w-4 h-4 fill-white text-white" />)}
-                  </div>
-                  <p className="text-lg text-slate-300 font-light mb-8">"J'ai arrêté d'acheter des fiches sur les grosses plateformes. Avec DF, j'ai mon propre tunnel. Mes commerciaux adorent."</p>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">S</div>
-                    <div>
-                      <p className="text-white font-bold text-sm">Sophie L.</p>
-                      <p className="text-purple-400 text-xs">Photovoltaïque</p>
-                    </div>
-                  </div>
-                </div>
-
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT / FORMULAIRE MULTI-ÉTAPES */}
-      <section id="contact" className="py-32 relative z-10">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6">
-          <div className="glass-panel rounded-[3rem] p-8 md:p-14 relative overflow-hidden">
-            {/* Effet lumineux de fond */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-lime-500/10 blur-[100px] rounded-full pointer-events-none"></div>
-            
-            <div className="relative z-10">
-              <div className="text-center mb-10">
-                <h2 className="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">Demandez votre audit</h2>
-                <p className="text-emerald-100/70 text-lg">Répondez à ces questions rapides pour préparer notre échange.</p>
-              </div>
-
-              {/* Barre de progression */}
-              {formStep < 4 && (
-                <div className="w-full max-w-sm mx-auto bg-black/40 h-1.5 rounded-full mb-12 overflow-hidden flex">
-                  <div className="h-full bg-lime-400 transition-all duration-500" style={{width: `${(formStep / 3) * 100}%`}}></div>
-                </div>
-              )}
-
-              {/* ETAPE 1 : Spécialité */}
-              {formStep === 1 && (
-                <div className="animate-fade-in-up max-w-2xl mx-auto">
-                  <h3 className="text-xl md:text-2xl text-white font-medium mb-6 text-center">Quelle est votre spécialité RGE principale ?</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {['Pompe à Chaleur (PAC)', 'Solaire / Photovoltaïque', 'Isolation / Façade', 'Rénovation Globale'].map(spec => (
-                      <button 
-                        key={spec} 
-                        onClick={() => { setFormData({...formData, specialty: spec}); setFormStep(2); }} 
-                        className="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group"
-                      >
-                        {spec}
-                        <ChevronRight className="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* ETAPE 2 : Défi */}
-              {formStep === 2 && (
-                <div className="animate-fade-in-up max-w-2xl mx-auto">
-                  <h3 className="text-xl md:text-2xl text-white font-medium mb-6 text-center">Quel est votre plus grand défi actuel ?</h3>
-                  <div className="grid grid-cols-1 gap-4">
-                    {['Je manque de demandes de devis régulières', 'Mes leads actuels sont de mauvaise qualité', 'La concurrence est trop forte sur mon secteur', 'Je perds trop de temps à prospecter'].map(challenge => (
-                      <button 
-                        key={challenge} 
-                        onClick={() => { setFormData({...formData, challenge: challenge}); setFormStep(3); }} 
-                        className="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group"
-                      >
-                        {challenge}
-                        <ChevronRight className="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
-                      </button>
-                    ))}
-                  </div>
-                  <button onClick={() => setFormStep(1)} className="mt-8 text-sm text-emerald-100/50 hover:text-white mx-auto block transition-colors">← Retour</button>
-                </div>
-              )}
-
-              {/* ETAPE 3 : Contact */}
-              {formStep === 3 && (
-                <div className="animate-fade-in-up max-w-md mx-auto">
-                  <h3 className="text-xl md:text-2xl text-white font-medium mb-6 text-center">Où pouvons-nous vous joindre ?</h3>
-                  <form onSubmit={(e) => { e.preventDefault(); setFormStep(4); }} className="space-y-4">
-                    <div>
-                      <label className="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Nom ou Entreprise</label>
-                      <input 
-                        required 
-                        type="text" 
-                        value={formData.name} 
-                        onChange={e => setFormData({...formData, name: e.target.value})} 
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-emerald-100/20"
-                        placeholder="Ex: Jean Dupont" 
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Numéro de téléphone</label>
-                      <input 
-                        required 
-                        type="tel" 
-                        value={formData.phone} 
-                        onChange={e => setFormData({...formData, phone: e.target.value})} 
-                        className="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-emerald-100/20"
-                        placeholder="06 12 34 56 78" 
-                      />
-                    </div>
-                    <button type="submit" className="w-full py-4 mt-6 font-bold text-black rounded-xl bg-lime-400 hover:bg-lime-300 transition-colors shadow-[0_0_20px_rgba(163,230,53,0.3)] flex justify-center items-center gap-2 group">
-                      Terminer et valider <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  </form>
-                  <button onClick={() => setFormStep(2)} className="mt-8 text-sm text-emerald-100/50 hover:text-white mx-auto block transition-colors">← Étape précédente</button>
-                </div>
-              )}
-
-              {/* ETAPE 4 : Succès */}
-              {formStep === 4 && (
-                <div className="animate-fade-in-up text-center py-8">
-                  <div className="w-20 h-20 rounded-full bg-lime-500/20 flex items-center justify-center mx-auto mb-6">
-                    <CheckCircle className="w-10 h-10 text-lime-400" />
-                  </div>
-                  <h3 className="text-3xl text-white font-bold mb-4">Demande confirmée !</h3>
-                  <p className="text-emerald-100/70 text-lg max-w-md mx-auto mb-8">
-                    Merci {formData.name || 'pour votre confiance'}. Mr. Fabre a bien reçu vos informations concernant votre activité de {formData.specialty}. <br/><br/>Il vous contactera très rapidement au <span className="text-white font-medium">{formData.phone}</span>.
-                  </p>
-                  <button onClick={() => { setFormStep(1); setFormData({ specialty: '', challenge: '', name: '', phone: '' }); }} className="text-lime-400 hover:text-lime-300 text-sm font-medium transition-colors">
-                    Faire une nouvelle demande
-                  </button>
-                </div>
-              )}
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* FOOTER SIMPLE */}
-      <footer className="border-t border-white/5 py-12 text-center relative z-10">
-        <div className="flex items-center justify-center gap-2 mb-4">
-          <Leaf className="text-emerald-500/50 w-4 h-4" />
-          <span className="font-bold text-emerald-500/50">DF Consulting</span>
-        </div>
-        <p className="text-emerald-100/30 text-sm">
-          © 2026 Tous droits réservés. Propulsé par l'Intelligence Artificielle.
-        </p>
-      </footer>
-
-      {/* BOUTON WHATSAPP FLOTTANT */}
-      <a 
-        href="https://wa.me/33749699137" 
-        target="_blank" 
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-[90] bg-[#25D366] text-white p-4 rounded-full shadow-[0_4px_20px_rgba(37,211,102,0.4)] hover:scale-110 hover:shadow-[0_6px_25px_rgba(37,211,102,0.6)] transition-all duration-300 group flex items-center gap-0 overflow-hidden cursor-pointer pointer-events-auto"
-      >
-        {/* Icone WhatsApp SVG Officielle */}
-        <svg className="w-7 h-7 shrink-0 fill-current" viewBox="0 0 24 24">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
-        </svg>
-        <span className="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 font-medium text-sm group-hover:ml-3">
-          Discutons de votre projet
-        </span>
-      </a>
-
     </div>
-  );
-}
+
+    <!-- FOND ANIMÉ : FORÊT, RAYONS DE SOLEIL & POLLEN -->
+    <div class="fixed inset-0 z-0 bg-[#021c13] overflow-hidden pointer-events-none">
+        <div class="absolute inset-0 bg-gradient-to-br from-[#042f21]/80 via-transparent to-[#03261a]/80"></div>
+        <div class="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-emerald-500/25 blur-[150px] rounded-full mix-blend-screen animate-forest-1"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-lime-400/20 blur-[150px] rounded-full mix-blend-screen animate-forest-2"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[900px] h-[900px] bg-teal-500/25 blur-[150px] rounded-full mix-blend-screen animate-forest-1" style="animation-delay: -10s;"></div>
+
+        <div class="sun-ray left-[10%]"></div>
+        <div class="sun-ray left-[45%]" style="animation-delay: -3s; width: 250px;"></div>
+        <div class="sun-ray left-[80%]" style="animation-delay: -7s;"></div>
+
+        <div class="absolute inset-0">
+            <div class="particle w-2 h-2 left-[15%]" style="animation-duration: 14s; animation-delay: 0s;"></div>
+            <div class="particle w-3 h-3 left-[35%]" style="animation-duration: 19s; animation-delay: -5s;"></div>
+            <div class="particle w-1.5 h-1.5 left-[55%]" style="animation-duration: 11s; animation-delay: -2s;"></div>
+            <div class="particle w-2.5 h-2.5 left-[75%]" style="animation-duration: 16s; animation-delay: -8s;"></div>
+            <div class="particle w-4 h-4 left-[90%]" style="animation-duration: 24s; animation-delay: -12s;"></div>
+        </div>
+
+        <div id="bg-leaves" class="absolute inset-0"></div>
+        <div class="absolute inset-0 bg-noise pointer-events-none opacity-60"></div>
+    </div>
+
+    <!-- NAVBAR FLOTTANTE -->
+    <div class="fixed top-6 left-0 w-full z-50 flex justify-center px-4 pointer-events-none">
+        <nav class="pointer-events-auto glass-panel rounded-full px-4 py-3 flex items-center justify-between gap-8 shadow-2xl shadow-black/50 max-w-4xl w-full transition-all">
+            <div class="flex items-center gap-2 pl-2 cursor-pointer" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+                <i data-lucide="leaf" class="text-lime-400 w-5 h-5"></i>
+                <span class="font-bold text-white tracking-tight hidden sm:block">DF Consulting</span>
+                <span class="font-bold text-white tracking-tight sm:hidden">DF</span>
+            </div>
+
+            <div class="hidden md:flex items-center gap-6">
+                <a href="#services" class="nav-link text-sm font-medium text-slate-400 hover:text-white transition-colors">Écosystème</a>
+                <a href="#demo-ia" class="nav-link text-sm font-medium text-slate-400 hover:text-white transition-colors">Audit IA</a>
+                <a href="#methode" class="nav-link text-sm font-medium text-slate-400 hover:text-white transition-colors">La Méthode</a>
+                <a href="#avis" class="nav-link text-sm font-medium text-slate-400 hover:text-white transition-colors">Témoignages</a>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <a href="#contact" class="nav-link hidden sm:flex items-center gap-2 px-5 py-2 font-medium text-sm text-black rounded-full bg-white hover:bg-emerald-50 transition-colors">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    Audit Gratuit
+                </a>
+                <button id="mobile-menu-btn" class="md:hidden text-white p-2 focus:outline-none">
+                    <i data-lucide="menu" id="menu-icon" class="w-6 h-6"></i>
+                    <i data-lucide="x" id="close-icon" class="w-6 h-6 hidden"></i>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MENU MOBILE PREMIUM -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-[#01140e]/98 backdrop-blur-3xl flex-col items-center justify-center hidden md:hidden overflow-hidden transition-all duration-300">
+        <div class="absolute inset-0 bg-noise pointer-events-none opacity-40"></div>
+        <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-lime-500/10 blur-[120px] rounded-full pointer-events-none"></div>
+        <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-600/10 blur-[120px] rounded-full pointer-events-none"></div>
+
+        <div class="relative z-10 flex flex-col items-center w-full px-8 gap-6 mt-12">
+            <a href="#services" class="mobile-nav-link text-4xl font-light text-white hover:text-lime-400 transition-colors w-full text-center pb-6 border-b border-white/5">Écosystème</a>
+            <a href="#demo-ia" class="mobile-nav-link text-4xl font-light text-white hover:text-lime-400 transition-colors w-full text-center pb-6 border-b border-white/5">Audit IA</a>
+            <a href="#methode" class="mobile-nav-link text-4xl font-light text-white hover:text-lime-400 transition-colors w-full text-center pb-6 border-b border-white/5">La Méthode</a>
+            <a href="#avis" class="mobile-nav-link text-4xl font-light text-white hover:text-lime-400 transition-colors w-full text-center pb-6 border-b border-white/5">Témoignages</a>
+            
+            <a href="#contact" class="mobile-nav-link mt-4 px-8 py-5 text-xl font-bold text-black rounded-2xl bg-gradient-to-r from-lime-400 to-emerald-400 shadow-[0_0_30px_rgba(163,230,53,0.2)] w-full text-center flex items-center justify-center gap-3 active:scale-95 transition-transform">
+                <i data-lucide="target" class="w-6 h-6"></i>
+                Réserver mon Audit
+            </a>
+        </div>
+    </div>
+
+    <!-- HERO SECTION (Immersion UX Mobile Premium) -->
+    <section class="relative w-full h-screen flex flex-col justify-end items-center pb-12 z-10 overflow-hidden">
+        
+        <!-- FOND SPLINE & BLEND (Astuce Ultime) -->
+        <div class="absolute inset-0 z-0 pointer-events-none flex flex-col bg-[#021c13]">
+            
+            <!-- Zone Haute -->
+            <div class="relative w-full h-[60vh] md:h-full overflow-hidden flex items-center justify-center">
+                
+                <!-- Loader sécurisé (Toujours visible au fond, recouvert par l'iframe quand il est prêt) -->
+                <div class="absolute inset-0 flex flex-col items-center justify-center z-0">
+                    <i data-lucide="loader-2" class="w-10 h-10 text-lime-500/50 mb-4 animate-spin"></i>
+                    <p class="text-lime-500/50 font-medium tracking-[0.2em] uppercase text-xs text-center px-4 animate-pulse">
+                        Initialisation de la 3D...
+                    </p>
+                </div>
+
+                <!-- L'Iframe -->
+                <!-- Astuce V7 : w-[280vw] dézoome MASSIVEMENT horizontalement (pour voir tout le texte à gauche et à droite). h-[75vh] maintient la bonne hauteur. -->
+                <iframe 
+                    fetchpriority="high"
+                    src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
+                    frameBorder="0" 
+                    title="Animation 3D DF Consulting"
+                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[280vw] md:w-full h-[75vh] md:h-full max-w-none pointer-events-none z-10"
+                ></iframe>
+                
+                <!-- Le Fondu magique : lie la forêt 3D avec la zone des boutons en dessous -->
+                <div class="absolute bottom-0 left-0 w-full h-32 md:h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/90 to-transparent z-20"></div>
+            </div>
+
+            <!-- Zone Basse : Fond uni vert sombre pour accueillir proprement les boutons (sur mobile uniquement) -->
+            <div class="w-full h-[40vh] md:hidden bg-[#021c13] z-10"></div>
+        </div>
+
+        <!-- CONTENU EN SURIMPRESSION (Boutons et Stats bien calés en bas) -->
+        <div class="relative z-30 w-full max-w-5xl mx-auto px-4 flex flex-col items-center pointer-events-none">
+            <div class="flex flex-wrap justify-center gap-4 mb-6 pointer-events-auto">
+                <a href="#contact" class="nav-link px-8 py-4 font-bold text-black rounded-full bg-lime-400 hover:bg-lime-300 transition-colors shadow-[0_0_30px_rgba(163,230,53,0.3)] flex items-center justify-center gap-2 group">
+                    Réserver mon audit gratuit
+                    <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                </a>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-4 pointer-events-auto">
+                <div class="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-white font-medium text-sm">+150 Artisans accompagnés</span>
+                </div>
+                <div class="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
+                    <span class="text-lime-400 font-bold">x3</span>
+                    <span class="text-white font-medium text-sm">Demandes de devis</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SERVICES -->
+    <section id="services" class="py-32 relative z-10 bg-gradient-to-b from-[#021c13] via-[#042f21] to-[#021c13]">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 relative">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-emerald-500/10 blur-[150px] rounded-full pointer-events-none"></div>
+            
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-16 tracking-tight text-center relative z-10">
+                Un écosystème d'acquisition <span class="italic text-emerald-200/50 font-light">naturellement puissant.</span>
+            </h2>
+
+            <div class="space-y-4 relative z-10">
+                <div class="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
+                    <div class="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-lime-500/50 transition-colors">
+                        <i data-lucide="target" class="w-8 h-8 text-lime-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">Acquisition Multicanal (Ads)</h3>
+                        <p class="text-emerald-100/70 text-lg font-light leading-relaxed">Nous diffusons vos offres sur Meta (Facebook/Instagram) et Google. Nous captons les particuliers de votre région au moment exact où ils envisagent une rénovation énergétique.</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
+                    <div class="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-emerald-500/50 transition-colors">
+                        <i data-lucide="leaf" class="w-8 h-8 text-emerald-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">Valorisation par l'IA</h3>
+                        <p class="text-emerald-100/70 text-lg font-light leading-relaxed">Plus besoin de payer des agences hors de prix pour des photos. Notre intelligence artificielle magnifie vos chantiers écologiques et rédige des textes persuasifs.</p>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
+                    <div class="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-green-500/50 transition-colors">
+                        <i data-lucide="sun" class="w-8 h-8 text-green-400"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-2xl font-bold text-white mb-2">Exclusivité Totale</h3>
+                        <p class="text-emerald-100/70 text-lg font-light leading-relaxed">Contrairement aux plateformes classiques, chaque lead généré par nos tunnels de conversion n'appartient qu'à vous. Finie la guerre des prix.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION DÉMO IA -->
+    <section id="demo-ia" class="py-24 relative z-10 bg-black/40 border-y border-lime-500/10">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMSIgZmlsbD0icmdiYSgxNjMsIDIzMCwgNTMsIDAuMSkiLz48L3N2Zz4=')] opacity-50"></div>
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 relative z-10">
+            <div class="text-center mb-12">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-lime-500/30 bg-lime-500/10 text-lime-400 text-xs font-semibold uppercase tracking-widest mb-4 backdrop-blur-md">
+                    <i data-lucide="bar-chart" class="w-4 h-4"></i>
+                    Outil d'Analyse Stratégique
+                </div>
+                <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight">
+                    Découvrez le potentiel de <span class="text-transparent bg-clip-text bg-gradient-to-r from-lime-400 to-emerald-400">votre secteur</span>
+                </h2>
+                <p class="text-emerald-100/70 text-lg max-w-2xl mx-auto">
+                    Nous interrogeons notre Intelligence Artificielle pour analyser la dynamique locale de votre marché. Saisissez votre ville et découvrez votre potentiel d'acquisition.
+                </p>
+            </div>
+
+            <div class="glass-panel rounded-3xl p-8 border border-lime-500/20 shadow-[0_0_50px_rgba(163,230,53,0.05)] max-w-4xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div>
+                        <label class="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Spécialité visée</label>
+                        <select id="ai-specialty" class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-lime-400 transition-all appearance-none cursor-pointer">
+                            <option value="" disabled selected>Sélectionnez une activité</option>
+                            <option value="Pompes à chaleur (PAC)">Pompes à chaleur (PAC)</option>
+                            <option value="Panneaux solaires">Panneaux solaires (Photovoltaïque)</option>
+                            <option value="Isolation thermique (ITE/ITI)">Isolation thermique (ITE/ITI)</option>
+                            <option value="Poêles à granulés">Poêles à granulés / Bois</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Zone d'intervention</label>
+                        <div class="relative">
+                            <i data-lucide="map-pin" class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-emerald-100/30"></i>
+                            <input id="ai-city" type="text" placeholder="ex: Lyon, Bordeaux, Bretagne..." class="w-full bg-black/40 border border-white/10 rounded-xl pl-12 pr-5 py-4 text-white focus:outline-none focus:border-lime-400 transition-all placeholder:text-emerald-100/20">
+                        </div>
+                    </div>
+                </div>
+                
+                <button id="ai-btn" onclick="analyzeLocalMarket()" class="w-full md:w-auto md:px-12 mx-auto py-4 font-bold text-black rounded-xl bg-gradient-to-r from-lime-400 to-emerald-400 hover:from-lime-300 hover:to-emerald-300 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(163,230,53,0.2)]">
+                    <span id="ai-btn-loading" class="hidden flex items-center gap-2">
+                        <i data-lucide="loader-2" class="w-5 h-5 animate-spin"></i> Analyse des données du secteur...
+                    </span>
+                    <span id="ai-btn-default" class="flex items-center gap-2">
+                        <i data-lucide="target" class="w-5 h-5"></i> Générer mon audit local gratuit
+                    </span>
+                </button>
+
+                <div id="ai-result-container" class="mt-8 p-6 md:p-8 rounded-2xl bg-[#01140e] border border-lime-500/30 relative animate-fade-in-up hidden">
+                    <div class="absolute -top-3 left-6 bg-[#021c13] px-3 py-0.5 text-xs font-bold text-lime-400 tracking-wider uppercase rounded-full border border-lime-500/30 shadow-[0_0_10px_rgba(163,230,53,0.2)] flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-lime-400 animate-pulse"></span>
+                        Rapport IA Terminé
+                    </div>
+                    
+                    <p id="ai-result-error" class="text-red-400 mt-2 hidden"></p>
+                    <div id="ai-result-content" class="text-emerald-50 text-base md:text-lg leading-relaxed whitespace-pre-wrap font-light mt-2 hidden"></div>
+                    
+                    <div id="ai-result-footer" class="mt-6 pt-6 border-t border-white/10 text-center hidden">
+                        <p class="text-sm text-emerald-100/50 mb-4">Ces données vous parlent ? Imaginez si nous ciblions exactement ces profils pour vous.</p>
+                        <a href="#contact" class="nav-link inline-flex text-lime-400 hover:text-lime-300 text-sm font-bold uppercase tracking-widest items-center gap-1 group">
+                            Discuter de ce marché avec M. Fabre <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- POURQUOI NOUS -->
+    <section id="methode" class="py-24 relative z-10 border-t border-white/5 bg-gradient-to-b from-[#021c13] to-[#03261a]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center mb-8">
+                        <i data-lucide="users" class="text-white w-5 h-5"></i>
+                    </div>
+                    <h2 class="text-4xl md:text-5xl font-bold text-white tracking-tight mb-6">
+                        L'humain au cœur <br/> de la machine.
+                    </h2>
+                    <p class="text-xl text-slate-400 font-light mb-8 leading-relaxed">
+                        DF Consulting, c'est la puissance des algorithmes couplée à un accompagnement VIP. Vous parlez directement avec M. Fabre, un expert qui connaît le label RGE, MaPrimeRénov' et la réalité des chantiers.
+                    </p>
+                    <ul class="space-y-4 mb-10">
+                        <li class="flex items-center gap-3 text-white">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center"><i data-lucide="zap" class="w-3 h-3 text-emerald-400"></i></div> Un interlocuteur unique (M. Fabre)
+                        </li>
+                        <li class="flex items-center gap-3 text-white">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center"><i data-lucide="zap" class="w-3 h-3 text-emerald-400"></i></div> Suivi ROI en temps réel
+                        </li>
+                        <li class="flex items-center gap-3 text-white">
+                            <div class="w-6 h-6 rounded-full bg-emerald-500/20 flex items-center justify-center"><i data-lucide="zap" class="w-3 h-3 text-emerald-400"></i></div> Disponibilité WhatsApp 7j/7
+                        </li>
+                    </ul>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 to-blue-500/20 blur-[100px] rounded-full"></div>
+                    <div class="glass-panel rounded-[2rem] p-10 relative z-10">
+                        <div class="w-full aspect-[4/3] rounded-2xl bg-black border border-white/10 flex flex-col items-center justify-center relative overflow-hidden">
+                            <div class="absolute bottom-0 w-full h-1/2 bg-gradient-to-t from-emerald-500/20 to-transparent"></div>
+                            <i data-lucide="trending-up" class="w-16 h-16 text-emerald-400 mb-4 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]"></i>
+                            <p class="text-white font-bold text-2xl">+312%</p>
+                            <p class="text-slate-500 text-sm uppercase tracking-widest">Croissance moyenne</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- AVIS CLIENTS -->
+    <section id="avis" class="py-32 relative z-10 overflow-hidden bg-gradient-to-b from-[#03261a] to-[#021c13]">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-lime-500/5 blur-[150px] rounded-full pointer-events-none"></div>
+        
+        <h2 class="text-center text-2xl font-medium text-slate-500 mb-12 uppercase tracking-widest relative z-10">Ceux qui dominent leur secteur</h2>
+        <div class="relative w-full flex overflow-hidden group z-10">
+            <div class="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-[#03261a] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-[#03261a] to-transparent z-10 pointer-events-none"></div>
+            <div class="flex animate-marquee gap-6 whitespace-nowrap pl-6">
+                <!-- Répété 2 fois pour le scroll infini -->
+                <div class="flex gap-6">
+                    <div class="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
+                        <div class="flex gap-1 mb-4 text-white"><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i></div>
+                        <p class="text-lg text-slate-300 font-light mb-8">"Agenda plein sur 3 semaines. Les leads générés ne sont pas partagés, la négo est beaucoup plus simple. Un vrai game changer."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">T</div>
+                            <div><p class="text-white font-bold text-sm">Thomas R.</p><p class="text-emerald-400 text-xs">Pompe à Chaleur</p></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
+                        <div class="flex gap-1 mb-4 text-white"><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i></div>
+                        <p class="text-lg text-slate-300 font-light mb-8">"M. Fabre est ultra réactif. On a pu cibler spécifiquement l'isolation par l'extérieur. Le coût d'acquisition a baissé de 40%."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">K</div>
+                            <div><p class="text-white font-bold text-sm">Kevin M.</p><p class="text-blue-400 text-xs">Isolation & Façade</p></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
+                        <div class="flex gap-1 mb-4 text-white"><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i></div>
+                        <p class="text-lg text-slate-300 font-light mb-8">"J'ai arrêté d'acheter des fiches sur les grosses plateformes. Avec DF, j'ai mon propre tunnel. Mes commerciaux adorent."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">S</div>
+                            <div><p class="text-white font-bold text-sm">Sophie L.</p><p class="text-purple-400 text-xs">Photovoltaïque</p></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Copie 2 -->
+                <div class="flex gap-6">
+                    <div class="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
+                        <div class="flex gap-1 mb-4 text-white"><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i></div>
+                        <p class="text-lg text-slate-300 font-light mb-8">"Agenda plein sur 3 semaines. Les leads générés ne sont pas partagés, la négo est beaucoup plus simple. Un vrai game changer."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">T</div>
+                            <div><p class="text-white font-bold text-sm">Thomas R.</p><p class="text-emerald-400 text-xs">Pompe à Chaleur</p></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
+                        <div class="flex gap-1 mb-4 text-white"><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i></div>
+                        <p class="text-lg text-slate-300 font-light mb-8">"M. Fabre est ultra réactif. On a pu cibler spécifiquement l'isolation par l'extérieur. Le coût d'acquisition a baissé de 40%."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">K</div>
+                            <div><p class="text-white font-bold text-sm">Kevin M.</p><p class="text-blue-400 text-xs">Isolation & Façade</p></div>
+                        </div>
+                    </div>
+                    <div class="glass-panel w-[400px] sm:w-[500px] rounded-3xl p-8 flex-shrink-0 inline-block whitespace-normal">
+                        <div class="flex gap-1 mb-4 text-white"><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i><i data-lucide="star" class="w-4 h-4 fill-white"></i></div>
+                        <p class="text-lg text-slate-300 font-light mb-8">"J'ai arrêté d'acheter des fiches sur les grosses plateformes. Avec DF, j'ai mon propre tunnel. Mes commerciaux adorent."</p>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center font-bold">S</div>
+                            <div><p class="text-white font-bold text-sm">Sophie L.</p><p class="text-purple-400 text-xs">Photovoltaïque</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT / FORMULAIRE MULTI-ÉTAPES -->
+    <section id="contact" class="py-32 relative z-10 bg-gradient-to-t from-[#01140e] to-[#021c13]">
+        <div class="max-w-3xl mx-auto px-4 sm:px-6">
+            <div class="glass-panel rounded-[3rem] p-8 md:p-14 relative overflow-hidden">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-lime-500/10 blur-[100px] rounded-full pointer-events-none"></div>
+                
+                <div class="relative z-10">
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl md:text-5xl font-bold text-white mb-4 tracking-tight">Demandez votre audit</h2>
+                        <p class="text-emerald-100/70 text-lg">Répondez à ces questions rapides pour préparer notre échange.</p>
+                    </div>
+
+                    <!-- Barre de progression -->
+                    <div id="progress-container" class="w-full max-w-sm mx-auto bg-black/40 h-1.5 rounded-full mb-12 overflow-hidden flex">
+                        <div id="progress-bar" class="h-full bg-lime-400 transition-all duration-500" style="width: 33.33%;"></div>
+                    </div>
+
+                    <!-- ETAPE 1 -->
+                    <div id="step-1" class="form-step animate-fade-in-up max-w-2xl mx-auto">
+                        <h3 class="text-xl md:text-2xl text-white font-medium mb-6 text-center">Quelle est votre spécialité RGE principale ?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <button onclick="setSpecialty('Pompe à Chaleur (PAC)')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Pompe à Chaleur (PAC) <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                            <button onclick="setSpecialty('Solaire / Photovoltaïque')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Solaire / Photovoltaïque <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                            <button onclick="setSpecialty('Isolation / Façade')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Isolation / Façade <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                            <button onclick="setSpecialty('Rénovation Globale')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Rénovation Globale <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ETAPE 2 -->
+                    <div id="step-2" class="form-step hidden animate-fade-in-up max-w-2xl mx-auto">
+                        <h3 class="text-xl md:text-2xl text-white font-medium mb-6 text-center">Quel est votre plus grand défi actuel ?</h3>
+                        <div class="grid grid-cols-1 gap-4">
+                            <button onclick="setChallenge('Je manque de demandes de devis régulières')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Je manque de demandes de devis régulières <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                            <button onclick="setChallenge('Mes leads actuels sont de mauvaise qualité')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Mes leads actuels sont de mauvaise qualité <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                            <button onclick="setChallenge('La concurrence est trop forte sur mon secteur')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                La concurrence est trop forte sur mon secteur <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                            <button onclick="setChallenge('Je perds trop de temps à prospecter')" class="p-5 rounded-2xl border border-white/10 bg-black/20 hover:bg-lime-500/10 hover:border-lime-500/50 transition-all text-white font-medium text-left flex items-center justify-between group">
+                                Je perds trop de temps à prospecter <i data-lucide="chevron-right" class="w-5 h-5 text-lime-400 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                            </button>
+                        </div>
+                        <button onclick="goToStep(1)" class="mt-8 text-sm text-emerald-100/50 hover:text-white mx-auto block transition-colors">← Retour</button>
+                    </div>
+
+                    <!-- ETAPE 3 -->
+                    <div id="step-3" class="form-step hidden animate-fade-in-up max-w-md mx-auto">
+                        <h3 class="text-xl md:text-2xl text-white font-medium mb-6 text-center">Où pouvons-nous vous joindre ?</h3>
+                        <form onsubmit="submitForm(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Nom ou Entreprise</label>
+                                <input id="form-name" required type="text" class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-emerald-100/20" placeholder="Ex: Jean Dupont">
+                            </div>
+                            <div>
+                                <label class="block text-xs text-emerald-100/50 uppercase tracking-wider mb-2 ml-1">Numéro de téléphone</label>
+                                <input id="form-phone" required type="tel" class="w-full bg-black/40 border border-white/10 rounded-xl px-5 py-4 text-white focus:outline-none focus:border-lime-400 focus:ring-1 focus:ring-lime-400 transition-all placeholder:text-emerald-100/20" placeholder="06 12 34 56 78">
+                            </div>
+                            <button type="submit" class="w-full py-4 mt-6 font-bold text-black rounded-xl bg-lime-400 hover:bg-lime-300 transition-colors shadow-[0_0_20px_rgba(163,230,53,0.3)] flex justify-center items-center gap-2 group">
+                                Terminer et valider <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                            </button>
+                        </form>
+                        <button onclick="goToStep(2)" class="mt-8 text-sm text-emerald-100/50 hover:text-white mx-auto block transition-colors">← Étape précédente</button>
+                    </div>
+
+                    <!-- ETAPE 4 : Succès -->
+                    <div id="step-4" class="form-step hidden animate-fade-in-up text-center py-8">
+                        <div class="w-20 h-20 rounded-full bg-lime-500/20 flex items-center justify-center mx-auto mb-6">
+                            <i data-lucide="check-circle" class="w-10 h-10 text-lime-400"></i>
+                        </div>
+                        <h3 class="text-3xl text-white font-bold mb-4">Demande confirmée !</h3>
+                        <p id="success-message" class="text-emerald-100/70 text-lg max-w-md mx-auto mb-8">
+                            Merci. Mr. Fabre a bien reçu vos informations. <br/><br/>Il vous contactera très rapidement.
+                        </p>
+                        <button onclick="resetForm()" class="text-lime-400 hover:text-lime-300 text-sm font-medium transition-colors">
+                            Faire une nouvelle demande
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER SIMPLE -->
+    <footer class="border-t border-white/5 py-12 text-center relative z-10">
+        <div class="flex items-center justify-center gap-2 mb-4">
+            <i data-lucide="leaf" class="text-emerald-500/50 w-4 h-4"></i>
+            <span class="font-bold text-emerald-500/50">DF Consulting</span>
+        </div>
+        <p class="text-emerald-100/30 text-sm">
+            © 2026 Tous droits réservés. Propulsé par l'Intelligence Artificielle.
+        </p>
+    </footer>
+
+    <!-- BOUTON WHATSAPP FLOTTANT -->
+    <a href="https://wa.me/33749699137" target="_blank" rel="noopener noreferrer" class="fixed bottom-6 right-6 z-[90] bg-[#25D366] text-white p-4 rounded-full shadow-[0_4px_20px_rgba(37,211,102,0.4)] hover:scale-110 hover:shadow-[0_6px_25px_rgba(37,211,102,0.6)] transition-all duration-300 group flex items-center gap-0 overflow-hidden cursor-pointer pointer-events-auto">
+        <svg class="w-7 h-7 shrink-0 fill-current" viewBox="0 0 24 24">
+            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.82 9.82 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+        </svg>
+        <span class="max-w-0 overflow-hidden whitespace-nowrap group-hover:max-w-xs transition-all duration-300 font-medium text-sm group-hover:ml-3">
+            Discutons de votre projet
+        </span>
+    </a>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        lucide.createIcons();
+
+        // Génération feuilles loader
+        const loaderLeavesContainer = document.getElementById('loader-leaves');
+        let loaderHTML = '';
+        for(let i=0; i<20; i++) {
+            loaderHTML += `<i data-lucide="leaf" class="loader-leaf" style="left: ${Math.random() * 100}%; animation-duration: ${2 + Math.random() * 3}s; animation-delay: ${-(Math.random() * 5)}s; width: ${24 + Math.random() * 32}px; height: ${24 + Math.random() * 32}px; --sway-end: ${(Math.random() - 0.5) * 300}px; --rotate-end: ${(Math.random() - 0.5) * 720}deg;"></i>`;
+        }
+        loaderLeavesContainer.innerHTML = loaderHTML;
+
+        // Génération feuilles de fond
+        const bgLeavesContainer = document.getElementById('bg-leaves');
+        let bgHTML = '';
+        for(let i=0; i<12; i++) {
+            bgHTML += `<i data-lucide="leaf" class="falling-leaf" style="left: ${Math.random() * 100}%; animation-duration: ${15 + Math.random() * 20}s; animation-delay: ${-(Math.random() * 25)}s; width: ${16 + Math.random() * 24}px; height: ${16 + Math.random() * 24}px; --sway-end: ${(Math.random() - 0.5) * 300}px; --rotate-end: ${(Math.random() - 0.5) * 1080}deg;"></i>`;
+        }
+        bgLeavesContainer.innerHTML = bgHTML;
+        lucide.createIcons();
+
+        // SPLASH SCREEN
+        setTimeout(() => {
+            const splash = document.getElementById('splash-screen');
+            splash.classList.add('opacity-0');
+            setTimeout(() => splash.remove(), 500);
+        }, 1200);
+
+        // MENU MOBILE
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            mobileMenu.classList.toggle('flex');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+            document.body.style.overflow = mobileMenu.classList.contains('hidden') ? 'auto' : 'hidden';
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetId = this.getAttribute('href').substring(1);
+                const targetElement = document.getElementById(targetId);
+                
+                if(targetElement) {
+                    const y = targetElement.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top: y, behavior: 'smooth' });
+                }
+
+                if(this.classList.contains('mobile-nav-link')) {
+                    mobileMenu.classList.add('hidden');
+                    mobileMenu.classList.remove('flex');
+                    menuIcon.classList.remove('hidden');
+                    closeIcon.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
+                }
+            });
+        });
+
+        // FORMULAIRE MULTI-ETAPES
+        let formData = { specialty: '', challenge: '', name: '', phone: '' };
+
+        function goToStep(step) {
+            document.querySelectorAll('.form-step').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`step-${step}`).classList.remove('hidden');
+            
+            const progressContainer = document.getElementById('progress-container');
+            const progressBar = document.getElementById('progress-bar');
+            
+            if(step < 4) {
+                progressContainer.classList.remove('hidden');
+                progressBar.style.width = `${(step / 3) * 100}%`;
+            } else {
+                progressContainer.classList.add('hidden');
+                document.getElementById('success-message').innerHTML = `Merci ${formData.name}. Mr. Fabre a bien reçu vos informations concernant votre activité de ${formData.specialty}. <br/><br/>Il vous contactera très rapidement au <span class="text-white font-medium">${formData.phone}</span>.`;
+            }
+        }
+
+        function setSpecialty(spec) { formData.specialty = spec; goToStep(2); }
+        function setChallenge(chal) { formData.challenge = chal; goToStep(3); }
+        
+        function submitForm(e) {
+            e.preventDefault();
+            formData.name = document.getElementById('form-name').value;
+            formData.phone = document.getElementById('form-phone').value;
+            goToStep(4);
+        }
+
+        function resetForm() {
+            formData = { specialty: '', challenge: '', name: '', phone: '' };
+            document.getElementById('form-name').value = '';
+            document.getElementById('form-phone').value = '';
+            goToStep(1);
+        }
+
+        // GESTION GEMINI API
+        async function analyzeLocalMarket() {
+            const specialty = document.getElementById('ai-specialty').value;
+            const city = document.getElementById('ai-city').value;
+            
+            if(!specialty || !city) return;
+
+            const btn = document.getElementById('ai-btn');
+            const loadingText = document.getElementById('ai-btn-loading');
+            const defaultText = document.getElementById('ai-btn-default');
+            const container = document.getElementById('ai-result-container');
+            const errorText = document.getElementById('ai-result-error');
+            const contentText = document.getElementById('ai-result-content');
+            const footer = document.getElementById('ai-result-footer');
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            defaultText.classList.add('hidden');
+            loadingText.classList.remove('hidden');
+            container.classList.add('hidden');
+
+            try {
+                const res = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ specialty, city })
+                });
+
+                const data = await res.json();
+
+                if(!res.ok) throw new Error(data.error || 'Erreur API');
+
+                contentText.innerHTML = data.result.replace(/\n/g, '<br/>');
+                errorText.classList.add('hidden');
+                contentText.classList.remove('hidden');
+                footer.classList.remove('hidden');
+            } catch (err) {
+                errorText.textContent = "Analyse momentanément indisponible. Veuillez réessayer.";
+                errorText.classList.remove('hidden');
+                contentText.classList.add('hidden');
+                footer.classList.add('hidden');
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                defaultText.classList.remove('hidden');
+                loadingText.classList.add('hidden');
+                container.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
