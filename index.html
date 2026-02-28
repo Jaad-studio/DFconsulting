@@ -108,23 +108,14 @@
             animation: fade-in-up 0.5s ease-out forwards;
         }
 
-        /* Nouvelle animation fluide et rapide pour Spline */
+        /* Animation Spline nettoyée (sans rétrécissement scale) */
         @keyframes splineFade {
-            from { opacity: 0; transform: scale(0.45) translateY(20px); }
-            to { opacity: 1; transform: scale(0.45) translateY(0); }
-        }
-        @keyframes splineFadeDesktop {
-            from { opacity: 0; transform: scale(1) translateY(20px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .animate-spline-mobile {
             opacity: 0;
             animation: splineFade 1.5s ease-out 0.5s forwards;
-        }
-        @media (min-width: 768px) {
-            .animate-spline-mobile {
-                animation: splineFadeDesktop 1.5s ease-out 0.5s forwards;
-            }
         }
         
         .no-scrollbar::-webkit-scrollbar {
@@ -226,24 +217,20 @@
     <!-- HERO SECTION (Immersion Totale 100vh) -->
     <section class="relative w-full h-screen flex flex-col justify-end items-center pb-12 z-10 overflow-hidden">
         
-        <!-- LE SPLINE EN FOND ABSOLU (Optimisé Mobile + Rapide) -->
-        <div class="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
-            
-            <!-- Wrapper de décalage mobile : pousse la scène 3D vers la droite sans casser l'animation -->
-            <div class="flex items-center justify-center w-full h-full translate-x-[25%] md:translate-x-0">
-                <!-- 
-                    Astuce Zoom Mobile: 
-                    - On force l'iframe à être très large (w-[220vw]) et très haute (h-[160vh]).
-                    - On la scale vers le bas (scale-[0.45]) pour l'éloigner.
-                    - Résultat : La caméra recule et tout le texte devient parfaitement lisible sur mobile !
-                -->
-                <iframe 
-                    src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
-                    frameBorder="0" 
-                    title="Animation 3D DF Consulting"
-                    class="w-[220vw] h-[160vh] md:w-full md:h-full origin-center pointer-events-none animate-spline-mobile"
-                ></iframe>
-            </div>
+        <!-- LE SPLINE EN FOND ABSOLU -->
+        <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+            <!-- 
+                Astuce Ultime Mobile : 
+                - L'iframe prend 250% de la largeur de l'écran (w-[250vw]).
+                - On la démarre complètement à gauche hors de l'écran (-left-[50vw]).
+                - Conséquence : Le modèle 3D glisse vers la droite sans jamais créer de trou vert sur les bords !
+            -->
+            <iframe 
+                src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
+                frameBorder="0" 
+                title="Animation 3D DF Consulting"
+                class="absolute top-0 h-full max-w-none pointer-events-none animate-spline-mobile w-[250vw] -left-[50vw] md:w-full md:left-0"
+            ></iframe>
             
             <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none"></div>
         </div>
