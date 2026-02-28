@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DF Consulting - Cabinet de Croissance RGE</title>
     
+    <!-- Optimisation du chargement 3D -->
+    <link rel="preconnect" href="https://my.spline.design">
+    <link rel="preconnect" href="https://prod.spline.design">
+    
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -220,21 +224,33 @@
         
         <!-- LE SPLINE EN FOND ABSOLU -->
         <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden flex items-center justify-center">
-            <!-- 
-                SOLUTION FINALE ET STABLE : 
-                - On donne une largeur fixe de 1000px sur mobile (w-[1000px]). 
-                  Cela force Spline à afficher la vue "Bureau" (dézoomée) sur mobile.
-                - On la centre avec left-1/2 et -translate-x-1/2.
-                - Il n'y a plus de "scale" ou de "vw" immenses, donc aucun crash mémoire sur iPhone !
-            -->
-            <iframe 
-                src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
-                frameBorder="0" 
-                title="Animation 3D DF Consulting"
-                class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] md:w-full h-full max-w-none pointer-events-none animate-spline-mobile"
-            ></iframe>
             
-            <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none"></div>
+            <!-- NOUVEAU : Indicateur de chargement Premium pour faire patienter l'utilisateur -->
+            <div id="spline-loader" class="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 z-0">
+                <i data-lucide="loader-2" class="w-10 h-10 text-lime-500/50 mb-4 animate-spin"></i>
+                <p class="text-lime-500/50 font-medium tracking-[0.2em] uppercase text-xs text-center px-4 animate-pulse">
+                    Initialisation de la 3D...
+                </p>
+            </div>
+
+            <!-- Wrapper de zoom sécurisé (Caché au départ avec opacity-0) -->
+            <div class="relative w-full h-full flex items-center justify-center scale-[1.6] md:scale-100 origin-center z-10 transition-opacity duration-1000 opacity-0" id="spline-wrapper">
+                <!-- 
+                    SOLUTION ANTI-CRASH ET ANTI-ZOOM : 
+                    - Ajout de fetchpriority="high"
+                    - Ajout d'un onload qui fait le fondu parfait une fois que Spline est prêt !
+                -->
+                <iframe 
+                    fetchpriority="high"
+                    src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
+                    frameBorder="0" 
+                    title="Animation 3D DF Consulting"
+                    class="w-[1350px] h-[600px] md:w-full md:h-full max-w-none pointer-events-none flex-shrink-0"
+                    onload="document.getElementById('spline-wrapper').classList.remove('opacity-0'); document.getElementById('spline-loader').classList.add('opacity-0'); setTimeout(() => { const l = document.getElementById('spline-loader'); if(l) l.remove(); }, 1000);"
+                ></iframe>
+            </div>
+            
+            <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none z-20"></div>
         </div>
 
         <div class="relative z-20 w-full max-w-5xl mx-auto px-4 flex flex-col items-center pointer-events-none">
