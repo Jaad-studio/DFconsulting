@@ -108,14 +108,14 @@
             animation: fade-in-up 0.5s ease-out forwards;
         }
 
-        /* Animation Spline nettoyée (sans rétrécissement scale) */
+        /* Animation Spline : Fade pur et fluide */
         @keyframes splineFade {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
         .animate-spline-mobile {
             opacity: 0;
-            animation: splineFade 1.5s ease-out 0.5s forwards;
+            animation: splineFade 1.5s ease-in-out 0.2s forwards;
         }
         
         .no-scrollbar::-webkit-scrollbar {
@@ -146,9 +146,10 @@
 
     <!-- FOND ANIMÉ : FORÊT, RAYONS DE SOLEIL & POLLEN -->
     <div class="fixed inset-0 z-0 bg-[#021c13] overflow-hidden pointer-events-none">
-        <div class="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-emerald-600/20 blur-[150px] rounded-full mix-blend-screen animate-forest-1"></div>
-        <div class="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-green-500/15 blur-[150px] rounded-full mix-blend-screen animate-forest-2"></div>
-        <div class="absolute bottom-[-20%] left-[20%] w-[900px] h-[900px] bg-lime-900/30 blur-[150px] rounded-full mix-blend-screen animate-forest-1" style="animation-delay: -10s;"></div>
+        <div class="absolute inset-0 bg-gradient-to-br from-[#042f21]/80 via-transparent to-[#03261a]/80"></div>
+        <div class="absolute top-[-20%] left-[-10%] w-[800px] h-[800px] bg-emerald-500/25 blur-[150px] rounded-full mix-blend-screen animate-forest-1"></div>
+        <div class="absolute top-[20%] right-[-10%] w-[700px] h-[700px] bg-lime-400/20 blur-[150px] rounded-full mix-blend-screen animate-forest-2"></div>
+        <div class="absolute bottom-[-20%] left-[20%] w-[900px] h-[900px] bg-teal-500/25 blur-[150px] rounded-full mix-blend-screen animate-forest-1" style="animation-delay: -10s;"></div>
 
         <div class="sun-ray left-[10%]"></div>
         <div class="sun-ray left-[45%]" style="animation-delay: -3s; width: 250px;"></div>
@@ -220,16 +221,16 @@
         <!-- LE SPLINE EN FOND ABSOLU -->
         <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
             <!-- 
-                Astuce Ultime Mobile : 
-                - L'iframe prend 250% de la largeur de l'écran (w-[250vw]).
-                - On la démarre complètement à gauche hors de l'écran (-left-[50vw]).
-                - Conséquence : Le modèle 3D glisse vers la droite sans jamais créer de trou vert sur les bords !
+                Astuce Ultime Mobile (V3) : 
+                - On force une largeur immense (450vw) pour obliger Spline à "dézoomer" et afficher la vue bureau.
+                - On décale vers la gauche (-130vw) pour que le point focal (le texte) tombe pile au centre du téléphone.
+                - Résultat : Le texte est entier, lisible, centré et plus du tout collé aux bords !
             -->
             <iframe 
                 src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
                 frameBorder="0" 
                 title="Animation 3D DF Consulting"
-                class="absolute top-0 h-full max-w-none pointer-events-none animate-spline-mobile w-[250vw] -left-[50vw] md:w-full md:left-0"
+                class="absolute top-0 h-full max-w-none pointer-events-none animate-spline-mobile w-[450vw] -left-[130vw] md:w-full md:left-0"
             ></iframe>
             
             <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none"></div>
@@ -257,13 +258,15 @@
     </section>
 
     <!-- SERVICES -->
-    <section id="services" class="py-32 relative z-10 bg-[#021c13]">
-        <div class="max-w-5xl mx-auto px-4 sm:px-6">
-            <h2 class="text-3xl md:text-5xl font-bold text-white mb-16 tracking-tight text-center">
+    <section id="services" class="py-32 relative z-10 bg-gradient-to-b from-[#021c13] via-[#042f21] to-[#021c13]">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 relative">
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[500px] bg-emerald-500/10 blur-[150px] rounded-full pointer-events-none"></div>
+            
+            <h2 class="text-3xl md:text-5xl font-bold text-white mb-16 tracking-tight text-center relative z-10">
                 Un écosystème d'acquisition <span class="italic text-emerald-200/50 font-light">naturellement puissant.</span>
             </h2>
 
-            <div class="space-y-4">
+            <div class="space-y-4 relative z-10">
                 <div class="glass-panel rounded-3xl p-8 md:p-10 flex flex-col md:flex-row items-start md:items-center gap-8 group hover:bg-white/[0.05] transition-colors cursor-default">
                     <div class="w-16 h-16 rounded-2xl bg-black/50 border border-white/10 flex items-center justify-center shrink-0 group-hover:border-lime-500/50 transition-colors">
                         <i data-lucide="target" class="w-8 h-8 text-lime-400"></i>
@@ -365,7 +368,7 @@
     </section>
 
     <!-- POURQUOI NOUS -->
-    <section id="methode" class="py-24 relative z-10 border-t border-white/5 bg-white/[0.01]">
+    <section id="methode" class="py-24 relative z-10 border-t border-white/5 bg-gradient-to-b from-[#021c13] to-[#03261a]">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
                 <div>
@@ -406,11 +409,13 @@
     </section>
 
     <!-- AVIS CLIENTS -->
-    <section id="avis" class="py-32 relative z-10 overflow-hidden">
-        <h2 class="text-center text-2xl font-medium text-slate-500 mb-12 uppercase tracking-widest">Ceux qui dominent leur secteur</h2>
-        <div class="relative w-full flex overflow-hidden group">
-            <div class="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-black to-transparent z-10"></div>
-            <div class="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-black to-transparent z-10"></div>
+    <section id="avis" class="py-32 relative z-10 overflow-hidden bg-gradient-to-b from-[#03261a] to-[#021c13]">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-lime-500/5 blur-[150px] rounded-full pointer-events-none"></div>
+        
+        <h2 class="text-center text-2xl font-medium text-slate-500 mb-12 uppercase tracking-widest relative z-10">Ceux qui dominent leur secteur</h2>
+        <div class="relative w-full flex overflow-hidden group z-10">
+            <div class="absolute top-0 bottom-0 left-0 w-32 bg-gradient-to-r from-[#03261a] to-transparent z-10 pointer-events-none"></div>
+            <div class="absolute top-0 bottom-0 right-0 w-32 bg-gradient-to-l from-[#03261a] to-transparent z-10 pointer-events-none"></div>
             <div class="flex animate-marquee gap-6 whitespace-nowrap pl-6">
                 <!-- Répété 2 fois pour le scroll infini -->
                 <div class="flex gap-6">
@@ -471,7 +476,7 @@
     </section>
 
     <!-- CONTACT / FORMULAIRE MULTI-ÉTAPES -->
-    <section id="contact" class="py-32 relative z-10">
+    <section id="contact" class="py-32 relative z-10 bg-gradient-to-t from-[#01140e] to-[#021c13]">
         <div class="max-w-3xl mx-auto px-4 sm:px-6">
             <div class="glass-panel rounded-[3rem] p-8 md:p-14 relative overflow-hidden">
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[300px] bg-lime-500/10 blur-[100px] rounded-full pointer-events-none"></div>
