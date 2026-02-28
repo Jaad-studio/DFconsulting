@@ -12,15 +12,19 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'La spécialité et la ville sont requises.' });
     }
   
-    const prompt = `INSTRUCTION : Tu es un expert en data locale et stratégie d'acquisition pour le secteur du bâtiment.
+    // Un prompt beaucoup plus humain : on demande à l'IA d'agir comme un conseiller
+    const prompt = `Agis comme un vrai consultant expert en acquisition pour les artisans RGE. 
+    Tu t'adresses directement à un artisan qui installe des ${specialty} autour de ${city}. 
     
-    MISSION : En tant qu'analyste de marché spécialisé dans la rénovation énergétique (RGE) en France, réalise un mini-audit très concis pour un artisan qui installe des ${specialty} dans la ville de ${city} (et sa région). 
+    Parle-lui de façon naturelle, très humaine et encourageante (en le vouvoyant). 
+    RÈGLE STRICTE : N'utilise AUCUN astérisque (*) ni aucun formatage (pas de gras, pas d'italique). Utilise uniquement du texte simple avec des sauts de ligne.
     
-    Structure ta réponse avec ces 3 points précis (et des emojis) :
-    1. 🌡️ Contexte local (climat typique, type de logements anciens, passoires thermiques).
-    2. 🎯 Profil du client idéal dans ce secteur géographique.
-    3. 🚀 Le meilleur angle marketing à utiliser pour ses publicités locales.
-    Reste très professionnel, direct, et donne envie à l'artisan de dominer son marché avec de bonnes publicités. Maximum 150 mots.`;
+    Fais une analyse rapide en 3 points :
+    1. 🌡️ Le contexte de sa région (climat, maisons anciennes, opportunités).
+    2. 🎯 Son client idéal sur ce secteur.
+    3. 🚀 L'angle d'attaque pour ses publicités locales (proximité, rassurer, aides de l'état, etc.).
+    
+    Sois direct, convaincant, et montre-lui que son marché a un grand potentiel. (Maximum 140 mots).`;
   
     // 1. Récupération et nettoyage de la clé API
     const rawApiKey = process.env.GEMINI_API_KEY || "";
@@ -29,12 +33,12 @@ export default async function handler(req, res) {
     // =========================================================================
     // FONCTION DE SECOURS (MODE DÉMO)
     // =========================================================================
-    // Si la clé API plante ou est absente, on renvoie ce texte générique 
-    // ultra-réaliste pour que le site donne l'impression de fonctionner à 100%.
     const sendMockResponse = () => {
-        const mockText = `🎯 **Analyse Stratégique Locale : ${city}**\n\n1. 🌡️ **Contexte local :** Le secteur de ${city} présente un parc immobilier vieillissant avec une forte proportion de passoires thermiques. La demande pour l'installation de ${specialty} est en forte croissance suite à l'augmentation des coûts de l'énergie.\n\n2. 🎯 **Profil du client idéal :** Propriétaires de maisons individuelles (35-65 ans) cherchant à réduire leurs factures par deux, tout en bénéficiant des aides de l'État (MaPrimeRénov').\n\n3. 🚀 **Angle marketing recommandé :** Stoppez les discours techniques. Misez sur la "Tranquillité d'esprit et la Proximité". Affichez des photos de vos chantiers récents près de ${city} et proposez une simulation gratuite des aides en 48h.`;
+        // Texte de secours rendu beaucoup plus humain et sans astérisques
+        const mockText = `Bonjour ! J'ai analysé votre secteur de ${city} pour votre activité de ${specialty}.\n\n1. 🌡️ Le contexte local : Votre région possède un grand nombre de maisons énergivores. Avec l'augmentation des prix de l'énergie, l'urgence de rénover n'a jamais été aussi forte pour les habitants de ${city}.\n\n2. 🎯 Votre client idéal : Ciblez les propriétaires de plus de 35 ans qui occupent leur maison depuis quelques années. Ils cherchent avant tout à réduire leurs factures et à valoriser leur bien avec MaPrimeRénov'.\n\n3. 🚀 Mon conseil d'approche : Stoppez les discours trop techniques. Jouez sur la "Tranquillité d'esprit et la Proximité". Montrez des photos de vos propres chantiers locaux et proposez une simulation gratuite des aides. Vous avez un boulevard devant vous !`;
         
-        return res.status(200).json({ result: mockText });
+        // On s'assure qu'aucun astérisque ne passe, même dans le mode secours !
+        return res.status(200).json({ result: mockText.replace(/\*/g, '') });
     };
 
     if (!apiKey) {
@@ -50,16 +54,14 @@ export default async function handler(req, res) {
         // 3. Appel à l'IA
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        const text = response.text();
+        
+        // 4. SÉCURITÉ : On nettoie le texte pour retirer absolument tous les astérisques
+        let text = response.text().replace(/\*/g, '');
 
         return res.status(200).json({ result: text });
         
     } catch (err) {
-        // On log l'erreur Google dans la console Vercel pour le débuggage
         console.error("L'API Google a bloqué la requête :", err.message);
-        
-        // Au lieu de planter l'affichage du site, on active le Mode Secours !
-        console.log("Activation du Mode Secours pour préserver l'expérience utilisateur.");
         return sendMockResponse();
     }
 }
