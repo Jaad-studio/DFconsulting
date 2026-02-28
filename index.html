@@ -215,7 +215,7 @@
         <!-- FOND SPLINE & BLEND (Astuce Ultime) -->
         <div class="absolute inset-0 z-0 pointer-events-none flex flex-col bg-[#021c13]">
             
-            <!-- Zone Haute (La scène 3D prend 60% de l'écran sur mobile pour forcer le dézoom) -->
+            <!-- Zone Haute -->
             <div class="relative w-full h-[60vh] md:h-full overflow-hidden flex items-center justify-center">
                 
                 <!-- Loader sécurisé (Toujours visible au fond, recouvert par l'iframe quand il est prêt) -->
@@ -227,13 +227,13 @@
                 </div>
 
                 <!-- L'Iframe -->
-                <!-- Astuce V6 : w-[190vw] dézoome horizontalement (pour voir C et G). h-[75vh] abaisse le centre (pour voir DF). -->
+                <!-- Astuce V7 : w-[280vw] dézoome MASSIVEMENT horizontalement (pour voir tout le texte à gauche et à droite). h-[75vh] maintient la bonne hauteur. -->
                 <iframe 
                     fetchpriority="high"
                     src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
                     frameBorder="0" 
                     title="Animation 3D DF Consulting"
-                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[190vw] md:w-full h-[75vh] md:h-full max-w-none pointer-events-none z-10"
+                    class="absolute top-0 left-1/2 -translate-x-1/2 w-[280vw] md:w-full h-[75vh] md:h-full max-w-none pointer-events-none z-10"
                 ></iframe>
                 
                 <!-- Le Fondu magique : lie la forêt 3D avec la zone des boutons en dessous -->
