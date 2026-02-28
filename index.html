@@ -107,8 +107,26 @@
         .animate-fade-in-up {
             animation: fade-in-up 0.5s ease-out forwards;
         }
+
+        /* Nouvelle animation fluide et rapide pour Spline */
+        @keyframes splineFade {
+            from { opacity: 0; transform: scale(0.45) translateY(20px); }
+            to { opacity: 1; transform: scale(0.45) translateY(0); }
+        }
+        @keyframes splineFadeDesktop {
+            from { opacity: 0; transform: scale(1) translateY(20px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .animate-spline-mobile {
+            opacity: 0;
+            animation: splineFade 1.5s ease-out 0.5s forwards;
+        }
+        @media (min-width: 768px) {
+            .animate-spline-mobile {
+                animation: splineFadeDesktop 1.5s ease-out 0.5s forwards;
+            }
+        }
         
-        /* Hide scrollbar for the marquee */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -186,9 +204,8 @@
         </nav>
     </div>
 
-    <!-- NOUVEAU MENU MOBILE PREMIUM -->
+    <!-- MENU MOBILE PREMIUM -->
     <div id="mobile-menu" class="fixed inset-0 z-40 bg-[#01140e]/98 backdrop-blur-3xl flex-col items-center justify-center hidden md:hidden overflow-hidden transition-all duration-300">
-        <!-- Effets de fond premium pour le menu mobile -->
         <div class="absolute inset-0 bg-noise pointer-events-none opacity-40"></div>
         <div class="absolute top-0 left-0 w-[400px] h-[400px] bg-lime-500/10 blur-[120px] rounded-full pointer-events-none"></div>
         <div class="absolute bottom-0 right-0 w-[400px] h-[400px] bg-emerald-600/10 blur-[120px] rounded-full pointer-events-none"></div>
@@ -208,21 +225,25 @@
 
     <!-- HERO SECTION (Immersion Totale 100vh) -->
     <section class="relative w-full h-screen flex flex-col justify-end items-center pb-12 z-10 overflow-hidden">
-        <div class="absolute inset-0 w-full h-full z-0 pointer-events-none">
-            <div id="spline-loader" class="absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000">
-                <i data-lucide="tree-pine" class="w-16 h-16 text-lime-500/40 mb-4 animate-pulse"></i>
-                <p class="text-lime-500/40 font-medium tracking-[0.2em] uppercase text-xs md:text-sm animate-pulse">
-                    Chargement de l'environnement 3D...
-                </p>
+        
+        <!-- LE SPLINE EN FOND ABSOLU (Optimisé Mobile + Rapide) -->
+        <div class="absolute inset-0 z-0 pointer-events-none flex items-center justify-center">
+            
+            <!-- Wrapper de décalage mobile : pousse la scène 3D vers la droite sans casser l'animation -->
+            <div class="flex items-center justify-center w-full h-full translate-x-[25%] md:translate-x-0">
+                <!-- 
+                    Astuce Zoom Mobile: 
+                    - On force l'iframe à être très large (w-[220vw]) et très haute (h-[160vh]).
+                    - On la scale vers le bas (scale-[0.45]) pour l'éloigner.
+                    - Résultat : La caméra recule et tout le texte devient parfaitement lisible sur mobile !
+                -->
+                <iframe 
+                    src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
+                    frameBorder="0" 
+                    title="Animation 3D DF Consulting"
+                    class="w-[220vw] h-[160vh] md:w-full md:h-full origin-center pointer-events-none animate-spline-mobile"
+                ></iframe>
             </div>
-
-            <iframe 
-                id="spline-iframe"
-                src="https://my.spline.design/gooutsidetoday-jwhL0f0RpYFFalzT02nt8rnS/" 
-                frameBorder="0" 
-                title="Animation 3D DF Consulting"
-                class="absolute top-0 left-1/2 -translate-x-1/2 w-[200vw] md:w-full md:left-0 md:translate-x-0 h-full max-w-none pointer-events-none opacity-0 transition-opacity duration-1000"
-            ></iframe>
             
             <div class="absolute bottom-0 left-0 w-full h-40 bg-gradient-to-t from-[#021c13] via-[#021c13]/80 to-transparent pointer-events-none"></div>
         </div>
@@ -579,10 +600,9 @@
 
     <!-- JAVASCRIPT LOGIC -->
     <script>
-        // --- 1. INITIALISATION DES ICNONES ---
         lucide.createIcons();
 
-        // --- 2. GENERATION DES FEUILLES DU LOADER ---
+        // Génération feuilles loader
         const loaderLeavesContainer = document.getElementById('loader-leaves');
         let loaderHTML = '';
         for(let i=0; i<20; i++) {
@@ -590,35 +610,23 @@
         }
         loaderLeavesContainer.innerHTML = loaderHTML;
 
-        // --- 3. GENERATION DES FEUILLES DE FOND ---
+        // Génération feuilles de fond
         const bgLeavesContainer = document.getElementById('bg-leaves');
         let bgHTML = '';
         for(let i=0; i<12; i++) {
             bgHTML += `<i data-lucide="leaf" class="falling-leaf" style="left: ${Math.random() * 100}%; animation-duration: ${15 + Math.random() * 20}s; animation-delay: ${-(Math.random() * 25)}s; width: ${16 + Math.random() * 24}px; height: ${16 + Math.random() * 24}px; --sway-end: ${(Math.random() - 0.5) * 300}px; --rotate-end: ${(Math.random() - 0.5) * 1080}deg;"></i>`;
         }
         bgLeavesContainer.innerHTML = bgHTML;
-        
-        // Re-init les icones créées dynamiquement
         lucide.createIcons();
 
-        // --- 4. GESTION DU SPLASH SCREEN ---
+        // SPLASH SCREEN
         setTimeout(() => {
             const splash = document.getElementById('splash-screen');
             splash.classList.add('opacity-0');
             setTimeout(() => splash.remove(), 500);
         }, 1200);
 
-        // --- 5. GESTION DU SPLINE ---
-        const splineIframe = document.getElementById('spline-iframe');
-        const splineLoader = document.getElementById('spline-loader');
-        splineIframe.onload = () => {
-            splineIframe.classList.remove('opacity-0');
-            splineIframe.classList.add('opacity-100');
-            splineLoader.classList.add('opacity-0');
-            setTimeout(() => splineLoader.remove(), 1000);
-        };
-
-        // --- 6. GESTION DU MENU MOBILE ---
+        // MENU MOBILE
         const mobileMenuBtn = document.getElementById('mobile-menu-btn');
         const mobileMenu = document.getElementById('mobile-menu');
         const menuIcon = document.getElementById('menu-icon');
@@ -629,11 +637,10 @@
             mobileMenu.classList.toggle('flex');
             menuIcon.classList.toggle('hidden');
             closeIcon.classList.toggle('hidden');
-            // Empêche le défilement de la page quand le menu est ouvert
             document.body.style.overflow = mobileMenu.classList.contains('hidden') ? 'auto' : 'hidden';
         });
 
-        // Smooth scroll & Offset pour navbar flottante
+        // Smooth scroll
         document.querySelectorAll('.nav-link, .mobile-nav-link').forEach(link => {
             link.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -650,12 +657,12 @@
                     mobileMenu.classList.remove('flex');
                     menuIcon.classList.remove('hidden');
                     closeIcon.classList.add('hidden');
-                    document.body.style.overflow = 'auto'; // Réactive le défilement
+                    document.body.style.overflow = 'auto';
                 }
             });
         });
 
-        // --- 7. GESTION DU FORMULAIRE MULTI-ETAPES ---
+        // FORMULAIRE MULTI-ETAPES
         let formData = { specialty: '', challenge: '', name: '', phone: '' };
 
         function goToStep(step) {
@@ -674,16 +681,9 @@
             }
         }
 
-        function setSpecialty(spec) {
-            formData.specialty = spec;
-            goToStep(2);
-        }
-
-        function setChallenge(chal) {
-            formData.challenge = chal;
-            goToStep(3);
-        }
-
+        function setSpecialty(spec) { formData.specialty = spec; goToStep(2); }
+        function setChallenge(chal) { formData.challenge = chal; goToStep(3); }
+        
         function submitForm(e) {
             e.preventDefault();
             formData.name = document.getElementById('form-name').value;
@@ -698,7 +698,7 @@
             goToStep(1);
         }
 
-        // --- 8. GESTION GEMINI API ---
+        // GESTION GEMINI API
         async function analyzeLocalMarket() {
             const specialty = document.getElementById('ai-specialty').value;
             const city = document.getElementById('ai-city').value;
@@ -713,7 +713,6 @@
             const contentText = document.getElementById('ai-result-content');
             const footer = document.getElementById('ai-result-footer');
 
-            // UI Loading state
             btn.disabled = true;
             btn.classList.add('opacity-50', 'cursor-not-allowed');
             defaultText.classList.add('hidden');
