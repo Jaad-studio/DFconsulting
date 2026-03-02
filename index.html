@@ -145,34 +145,6 @@
             transform: translateY(0);
         }
 
-        /* NOUVEAU : Curseur Magique */
-        @media (pointer: fine) {
-            body { cursor: none; }
-            a, button, select, input, .cursor-pointer { cursor: none !important; }
-        }
-        #custom-cursor {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 10px;
-            height: 10px;
-            background-color: #a3e635; /* lime-400 */
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 10000;
-            transform: translate(-50%, -50%);
-            transition: width 0.2s, height 0.2s, background-color 0.2s, border 0.2s;
-            box-shadow: 0 0 15px rgba(163, 230, 53, 0.8);
-        }
-        #custom-cursor.hover-state {
-            width: 50px;
-            height: 50px;
-            background-color: rgba(163, 230, 53, 0.1);
-            border: 1px solid rgba(163, 230, 53, 0.5);
-            backdrop-filter: blur(2px);
-            box-shadow: none;
-        }
-
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -183,9 +155,6 @@
     </style>
 </head>
 <body class="bg-[#041e15] text-emerald-50 font-sans selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden relative min-h-screen">
-
-    <!-- NOUVEAU : Élément du curseur magique -->
-    <div id="custom-cursor" class="hidden md:block"></div>
 
     <!-- ÉCRAN DE CHARGEMENT (SPLASH SCREEN) -->
     <div id="splash-screen" class="fixed inset-0 z-[100] bg-[#041e15] flex flex-col items-center justify-center transition-opacity duration-500 ease-in-out">
@@ -324,7 +293,7 @@
             <div class="flex flex-wrap justify-center gap-4 pointer-events-auto">
                 <div class="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-white font-medium text-sm">+150 Artisans accompagnés</span>
+                    <span class="text-white font-medium text-sm">+10 Artisans accompagnés</span>
                 </div>
                 <div class="glass-panel px-6 py-3 rounded-full flex items-center gap-3">
                     <span class="text-lime-400 font-bold">x3</span>
@@ -619,8 +588,8 @@
                     </div>
                 </div>
 
-                <!-- Avis 5 (Large) -->
-                <div class="glass-panel rounded-3xl p-8 relative overflow-hidden group hover:border-lime-500/30 hover:-translate-y-1 transition-all duration-500 md:col-span-2 lg:col-span-2 flex flex-col justify-between reveal" style="transition-delay: 100ms;">
+                <!-- Avis 5 -->
+                <div class="glass-panel rounded-3xl p-8 relative overflow-hidden group hover:border-lime-500/30 hover:-translate-y-1 transition-all duration-500 flex flex-col justify-between reveal" style="transition-delay: 100ms;">
                     <i data-lucide="quote" class="absolute top-6 right-6 w-16 h-16 text-white/[0.03] rotate-180 pointer-events-none"></i>
                     <div>
                         <div class="flex gap-1 mb-6 text-lime-400">
@@ -839,21 +808,6 @@
     <!-- JAVASCRIPT LOGIC -->
     <script>
         lucide.createIcons();
-
-        // NOUVEAU : CURSEUR MAGIQUE
-        const cursor = document.getElementById('custom-cursor');
-        if (window.matchMedia("(pointer: fine)").matches) {
-            document.addEventListener('mousemove', (e) => {
-                cursor.style.left = e.clientX + 'px';
-                cursor.style.top = e.clientY + 'px';
-            });
-
-            const hoverElements = document.querySelectorAll('a, button, select, input, .cursor-pointer');
-            hoverElements.forEach(el => {
-                el.addEventListener('mouseenter', () => cursor.classList.add('hover-state'));
-                el.addEventListener('mouseleave', () => cursor.classList.remove('hover-state'));
-            });
-        }
 
         // NOUVEAU : ANIMATIONS AU SCROLL (REVEAL)
         function reveal() {
