@@ -97,7 +97,7 @@ export default function Testimonials() {
                     <div>
                         {renderStars()}
                         <p className="text-lg md:text-xl text-emerald-50/90 font-light leading-relaxed mb-10">
-                            "M. Fabre comprend vraiment notre métier du luxe. L'écosystème mis en place tourne tout seul. On vend des bassins de luxe à plus de 45 000€ à des clients que l'on pensait intouchables avant. Nous dominons toute la région."
+                            "L'équipe DF Consulting comprend vraiment notre métier du luxe. L'écosystème mis en place tourne tout seul. On vend des bassins de luxe à plus de 45 000€ à des clients que l'on pensait intouchables avant. Nous dominons toute la région."
                         </p>
                     </div>
                     <div className="flex items-center gap-4 mt-auto pt-6 border-t border-white/5">

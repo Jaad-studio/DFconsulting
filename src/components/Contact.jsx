@@ -133,7 +133,7 @@ export default function Contact() {
                           </div>
                           <h3 className="text-3xl text-white font-bold mb-4">Demande confirmée !</h3>
                           <p className="text-emerald-100/70 text-lg max-w-md mx-auto mb-8">
-                              Merci {formData.name}. Mr. Fabre a bien reçu vos informations concernant votre activité de {formData.specialty}. <br /><br />Il vous contactera très rapidement au <span className="text-white font-medium">{formData.phone}</span>.
+                              Merci {formData.name}. Notre équipe a bien reçu vos informations concernant votre activité de {formData.specialty}. <br /><br />Un de nos experts vous contactera très rapidement au <span className="text-white font-medium">{formData.phone}</span>.
                           </p>
                           <button onClick={resetForm} className="text-lime-400 hover:text-lime-300 text-sm font-medium transition-colors">
                               Faire une nouvelle demande

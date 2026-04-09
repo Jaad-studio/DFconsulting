@@ -109,7 +109,7 @@ export default function DemoIA() {
                           <div className="mt-6 pt-6 border-t border-white/10 text-center">
                               <p className="text-sm text-emerald-100/50 mb-4">Ces données vous parlent ? Imaginez si nous ciblions exactement ces profils pour vous.</p>
                               <button onClick={scrollToContact} className="nav-link inline-flex text-lime-400 hover:text-lime-300 text-sm font-bold uppercase tracking-widest items-center gap-1 group">
-                                  Discuter de ce marché avec M. Fabre <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                  Discuter de ce marché avec un expert <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                               </button>
                           </div>
                         </>

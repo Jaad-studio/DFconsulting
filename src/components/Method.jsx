@@ -18,7 +18,7 @@ export default function Method() {
                     <motion.div style={{ y }} className="absolute inset-0 z-0">
                         <img 
                           src="/fabre.jpg" 
-                          alt="M. Fabre - Consultant Expert" 
+                          alt="Notre équipe d'experts" 
                           loading="lazy" 
                           decoding="async" 
                           className="w-full h-[120%] object-cover object-top" 
@@ -32,7 +32,7 @@ export default function Method() {
                                 <span className="w-1.5 h-1.5 rounded-full bg-lime-400 animate-pulse"></span>
                                 <span className="text-lime-400 font-bold uppercase tracking-widest text-[10px]">Consultant Stratégique</span>
                             </div>
-                            <h3 className="text-3xl font-bold text-white font-serif">Marc Fabre</h3>
+                            <h3 className="text-3xl font-bold text-white font-serif">Votre Expert</h3>
                         </div>
                         <div className="w-12 h-12 rounded-full bg-lime-400 flex items-center justify-center shadow-[0_0_20px_rgba(163,230,53,0.4)] group-hover:scale-110 transition-transform">
                             <Handshake className="w-6 h-6 text-black" />
