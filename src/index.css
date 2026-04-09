@@ -1,0 +1,167 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+    animation: scroll 40s linear infinite;
+}
+
+.animate-marquee:hover {
+    animation-play-state: paused;
+}
+
+.glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05); /* very subtle */
+    position: relative;
+    overflow: hidden;
+}
+
+.glass-panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(800px circle at var(--mouse-x, -500px) var(--mouse-y, -500px), rgba(163, 230, 53, 0.08), transparent 40%);
+    opacity: 0;
+    transition: opacity 0.5s;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.glass-panel:hover::before {
+    opacity: 1;
+}
+
+.glass-panel > * {
+    position: relative;
+    z-index: 1;
+}
+
+.bg-noise {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+}
+
+@keyframes float-up {
+    0% { transform: translateY(110vh) translateX(0px) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) translateX(50px) rotate(360deg); opacity: 0; }
+}
+
+.particle {
+    position: absolute;
+    background: radial-gradient(circle, rgba(167, 243, 208, 0.8) 0%, rgba(16, 185, 129, 0) 70%);
+    border-radius: 50%;
+    animation: float-up linear infinite;
+    will-change: transform, opacity;
+}
+
+@keyframes sun-ray {
+    0% { transform: rotate(15deg) scale(1); opacity: 0.05; }
+    50% { transform: rotate(18deg) scale(1.2); opacity: 0.12; }
+    100% { transform: rotate(15deg) scale(1); opacity: 0.05; }
+}
+
+.sun-ray {
+    position: absolute;
+    top: -20%;
+    width: 150px;
+    height: 150vh;
+    background: linear-gradient(to bottom, rgba(253, 230, 138, 0.4), transparent);
+    transform-origin: top center;
+    animation: sun-ray 10s ease-in-out infinite alternate;
+    filter: blur(40px);
+}
+
+@keyframes float-aurora {
+    0% { transform: rotate(0deg) translate(0px, 0px) scale(1); }
+    33% { transform: rotate(5deg) translate(80px, -50px) scale(1.1); }
+    66% { transform: rotate(-3deg) translate(-60px, 80px) scale(0.95); }
+    100% { transform: rotate(0deg) translate(0px, 0px) scale(1); }
+}
+
+.animate-forest-1 {
+    animation: float-aurora 25s infinite ease-in-out alternate;
+    will-change: transform;
+}
+
+.animate-forest-2 {
+    animation: float-aurora 30s infinite ease-in-out alternate-reverse;
+    animation-delay: -5s;
+    will-change: transform;
+}
+
+@keyframes leaf-fall {
+    0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translate3d(var(--sway-end), 110vh, 0) rotate(var(--rotate-end)); opacity: 0; }
+}
+
+.falling-leaf {
+    position: absolute;
+    top: -10%;
+    animation: leaf-fall linear infinite;
+    color: rgba(52, 211, 153, 0.4);
+    filter: drop-shadow(0 0 10px rgba(52, 211, 153, 0.2));
+}
+
+@keyframes loader-leaf-fall {
+    0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translate3d(var(--sway-end), 110vh, 0) rotate(var(--rotate-end)); opacity: 0; }
+}
+
+.loader-leaf {
+    position: absolute;
+    top: -10%;
+    animation: loader-leaf-fall linear infinite;
+    color: rgba(163, 230, 53, 0.8);
+    filter: drop-shadow(0 0 15px rgba(163, 230, 53, 0.5));
+}
+
+@keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+section {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 800px;
+}
